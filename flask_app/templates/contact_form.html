@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+{% include "html_header.html" %}
+<body>
+<div>
+    <div class="container">
+    <div class="row">
+    <div class="col-sm-6 col-sm-offset-3 text-center">
+        <div class="divider-5"></div>
+        {% if session['message'] %}
+        <h3>{{ session['message'] }}</h3>
+        {% endif %}
+    </div>
+    </div>
+        
+    <div class="row text-center">
+
+        <div>We would like to hear from you, whether you are in high school just starting out your college search, or a parent shopping for your kid's college. We welcome comments from career counselors and college administrators; as well as from data enthusiasts!</div>     
+        <br>
+    <form action='/contact_us' method="post" name="post" enctype="multipart/form-data"  onsubmit="setTimeout(function () { window.location.reload(); }, 300)" >
+        <div class="form-group">
+                {{ g.contact_form.email(id="contact-email", maxlength="200", class="form-control", placeholder="Your email") }}              
+        </div>
+        <div class="form-group">
+                <span class="form-control-static pull-right"><div style="font-size:90%; color:#777777" id="count_message_nm"></div></span>
+                {{ g.contact_form.message(id="contact-msg", maxlength="500", class="form-control", placeholder="Your message here") }}
+        </div>
+        
+        <div class="form-group">
+                    <select name = "contact_reason" class="form-control">
+                    {% for item in config.CONTACT_RSN_LIST %}
+                        <option value="{{ item }}">{{ item }}</option>    
+                    {% endfor %}
+                    </select>
+        {{ g.contact_form.contact_reason(type="hidden", value=value) }}    
+        </div>
+        <button type="submit" class="btn btn-md btn-default" value="save">Contact us</button>
+        {{ g.contact_form.hidden_tag() }}
+        <div class="checkbox">
+            <label>{{ g.contact_form.get_newsletter(id="contact-nl") }} Sign up for the newsletter </label>
+        </div>
+        </form>
+        <div>
+    </div>
+    </div>
+
+<script>
+    var text_max = 500;
+$('#count_message_nm').html(text_max + ' ');
+
+$('#contact-msg').keyup(function() {
+  var text_length = $('#contact-msg').val().length;
+  var text_remaining = text_max - text_length;
+  
+  $('#count_message_nm').html(text_remaining + ' ');
+});
+    
+</script>
+    
+</div>
+</body>
+</html>

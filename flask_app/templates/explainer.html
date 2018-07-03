@@ -1,0 +1,173 @@
+
+<!DOCTYPE html>
+<html lang="en">
+{% include "html_header.html" %}
+<body>
+<div class="container">
+
+<h3>Explanation of various quantities used in <code>{{ config.WSNAME }}</code>:</h3>
+<br>
+<div>
+    <h5>Definition of different quantities:</h5>
+</div>
+<br>
+
+<a href="#completion" data-toggle="collapse"><h6>Completion (%)</h6></a>
+<div id="completion" class="collapse indent">
+    <div>
+        This number presents the percentage of full-time AND first-time students who complete at four-year/less-than-four-year institutions within 150% of expected time to completion (e.g., within 6 years for a four-year school).<br>In the <a href="https://collegescorecard.ed.gov/" target="_blank">ed.gov</a> dataset, the relevant metrics are <code>C150_4</code> and <code>C150_L4</code>.
+    </div>
+    <br>
+</div>
+
+
+<a href="#debt" data-toggle="collapse"><h6>Debt/median debt (USD)</h6></a>
+<div id="debt" class="collapse indent">
+    <div>
+        We look at the median original loan amount as students enter the repayment program.<br>In the <a href="https://collegescorecard.ed.gov/" target="_blank">ed.gov</a> dataset, this quantity is called <code>DEBT_MDN</code>.
+    </div>
+    <br>
+</div>
+    
+
+<a href="#earning" data-toggle="collapse"><h6>Earning/mean earning (USD)</h6></a>
+<div id="earning" class="collapse indent">
+    <div>
+        As a proxy to understand earning after graduation, we look at the mean earnings of students who are working and not enrolled 6 years after their entry to the school.<br>In the <a href="https://collegescorecard.ed.gov/" target="_blank">ed.gov</a> dataset, the relevant metric is <code>MN_EARN_WNE_P6</code>.
+    </div>
+    <br>
+</div>
+    
+<a href="#expenses_on_students" data-toggle="collapse"><h6>Expenses per student USD</h6></a>
+<div id="expenses_on_students" class="collapse indent">
+    <div>
+        In this quantity we look at the reported value of how much schools spend on instructional expenditures per full-time equivalent student (per year?).<br>In the <a href="https://collegescorecard.ed.gov/" target="_blank">ed.gov</a> dataset, the relevant metric is <code>INEXPFTE</code>.
+        <br><br>
+        We divide the official number by the median income in the school's county, to adjust for the fact that similar instructional effort may vary substantially from one part of the country to another.
+    </div>
+    <br>
+</div>
+    
+<a href="#ft_fac" data-toggle="collapse"><h6>Full-time/FT faculty (%)</h6></a>
+<div id="ft_fac" class="collapse indent">
+    <div>
+        This quantity tracks the proportion of faculty that is full-time.<br>In the <a href="https://collegescorecard.ed.gov/" target="_blank">ed.gov</a> dataset, the relevant metric is <code>PFTFAC</code>. 
+    </div>
+    <br>
+</div>
+
+<a href="#ft_student" data-toggle="collapse"><h6>Full-time/FT student (%)</h6></a>
+<div id="ft_student" class="collapse indent">
+    <div>
+        This number represents the percentage of entering undergraduates who are first-time and full-time students.<br>In the <a href="https://collegescorecard.ed.gov/" target="_blank">ed.gov</a> dataset, the relevant metric is <code>PFTFTUG1_EF</code>.
+    </div>
+    <br>
+</div>
+    
+    
+<a href="#net_price" data-toggle="collapse"><h6>Net price (USD)</h6></a>
+<div id="net_price" class="collapse indent">
+    <div>
+        This is the average net price for Title IV public, private for-profit and nonprofit institutions. This takes into account the "sticker price" (see below), and subtracts the average grant/scholarship aid.
+        <br>In the <a href="https://collegescorecard.ed.gov/" target="_blank">ed.gov</a> dataset, the relevant metrics are <code>NPT4_PUB</code> and <code>NPT4_PRIV</code>.
+    </div>
+    <br>
+</div>
+
+<a href="#pell_pct" data-toggle="collapse"><h6>Pell recipient (%)</h6></a>
+<div id="pell_pct" class="collapse indent">
+    <div>
+        This is the percentage of undergraduates who receive a Pell Grant.<br>In the <a href="https://collegescorecard.ed.gov/" target="_blank">ed.gov</a> dataset, this quantity is called <code>PCTPELL</code>.
+    </div>
+    <br>
+</div>
+
+
+<a href="#retention_students" data-toggle="collapse"><h6>Student retention(%)</h6></a>
+<div id="retention_students" class="collapse indent">
+    <div>
+        Student retention percentage is a sum of the retention percentage of the part-time students and the retention percentage of the full-time students. We arrive at each of these quantities by multiplying the relevant retention percentage for the relevant student group (part-time or full-time) with their fraction of the total undergraduate student population.
+        <br><br>
+        For the four-year institutions, these quantities are referred to as <code>PFTFTUG1_EF</code>, <code>RET_PT4</code>, and <code>RET_FT4</code> in the <a href="https://collegescorecard.ed.gov/" target="_blank">ed.gov</a> dataset. For less-than-four-year schools, the last 2 quantities are <code>RET_PTL4</code>, and <code>RET_FTL4</code>.
+    </div>
+    <br>
+</div>
+
+    
+
+<a href="#sticker_price" data-toggle="collapse"><h6>Sticker price/Avg. cost (USD)</h6></a>
+<div id="sticker_price" class="collapse indent">
+    <div>
+        The average annual total cost of attendance, including tuition and fees, books and supplies, and living expenses for all full-time, first-time, degree/certificate-seeking undergraduates who receive Title IV aid. It is taken directly from the ed.gov dataset. In that dataset, the related quantities are <code>CostT4_A</code> for academic-year institutions.
+    </div>
+    <br>
+</div>
+
+<a href="#withdrwal" data-toggle="collapse"><h6>Withdrwal (%)</h6></a>
+<div id="withdrwal" class="collapse indent">
+    <div>
+        Percent withdrawn from original institution within 6 years. In the ed.gov dataset, this is <code>WDRAW_ORIG_YR6_RT</code>.
+    </div>
+    <br>
+</div>
+
+<br>    
+<a href="#value_score" data-toggle="collapse"><h6>value score (out of 100)</h6></a>
+<div id="value_score" class="collapse indent">
+    <div>
+        To define value score, we first calculate a value_index, defined as a product of 3 ratios: (a) earning to debt ratio of graduates, (b) % completion to % admission rate, and (c) sticker price to net price. Once we have the value index of all the schools, we calculate percentile based on similar schools (based on their Carnegie classification <code>CCBASIC</code> in ed.gov dataset).
+    </div>
+    <br>
+</div>
+    
+<a href="#care_score" data-toggle="collapse"><h6>Care score (out of 100)</h6></a>
+<div id="care_score" class="collapse indent">
+    <div>
+        Similar to value score defined above, calculating care score involves first calculating a care index. Care index is defined as the product of % Pell grant recipients, % of graduates, % of students who don't withdraw, retention %, % of full-time faculty, and the ratio of expenses on students squared to average faculty salary. Once a care index is calculated, the percentile score calculated based on the school's Carnegies classification is defined as the care score.
+    </div>
+    <br>
+</div>
+<!-- =========================================== -->
+<hr>
+
+<div>
+    <h5>Data source, analysis and visualization</h5>
+</div>
+<br>
+
+<a href="#data_source" data-toggle="collapse"><h6>Where do all these numbers come from?</h6></a>
+<div id="data_source" class="collapse indent">
+    <div>
+        We are mostly using data available from <a href="https://collegescorecard.ed.gov/" target="_blank">collegescorecard.ed.gov</a>. For comparing $ amounts where applicable, we use county-level income data available from <a href="https://datausa.io/" target="_blank">datausa.io</a>.
+    </div>
+    <br>
+</div>
+
+<a href="#data_processing" data-toggle="collapse"><h6>Does <code>{{ config.WSNAME }}</code> directly report the numbers from the data soure?</h6></a>
+<div id="data_processing" class="collapse indent">
+    <div>
+        <p>We report most of the quantities mentioned in our website directly from ed.gov website. There are a few exceptions, however. For example, "value score" and "care score" are combined metrics that we created to better compare performances among schools.</p>
+        
+        <p>Also, we divided the <em>average faculty salary</em> and <em>average expenses on full-time students</em> by a factor that scales with the median family income in the school's location.</p>
+        
+        <p>In addition, the Wikipedia and the social media data come directly from the respective sources.</p>
+        
+    </div>
+    <br>
+</div>
+
+<a href="#data_ana_vis" data-toggle="collapse"><h6>Where can we see the analysis you performed?</h6></a>
+<div id="data_ana_vis" class="collapse indent">
+    <div>
+        We are working on making our analysis public. Please stay tuned!
+    </div>
+    <br>
+</div>
+
+<div class="divider-10"><br><br><br></div>
+
+<!-- =========================================== -->
+    
+</div>
+</body>
+</html>

@@ -1,0 +1,8 @@
+From: {{ sender_email }}
+
+Message: {{ sender_msg }}
+Contact type/reason: {{ sender_type }}
+Get newsletter: {{ get_newsletter }}
+
+Regards,
+The CSC mailbot

@@ -1,0 +1,9 @@
+Dear {{ email }},
+
+
+CSC fail!
+
+Please act. Urgent.
+
+Regards,
+The CSC admin

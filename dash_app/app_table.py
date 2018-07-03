@@ -840,6 +840,7 @@ def filter_df(n_clicks,sc_type, sc_control, acad_type, adm_range, sat_math, sat_
         filtered_df['DISTANCE'] = haversine_np(lat_in, long_in,
                                               lat_long_mat[:,0],lat_long_mat[:,1])
 
+        print filtered_df['ZIP5']
         filtered_df = filtered_df[filtered_df['DISTANCE']<float(loc_dist_range)].copy()
     
     #And finally dump the filtered dataframe into a json.
@@ -1034,7 +1035,7 @@ def update_qf(inst1):
             other_affil = 'None'            
         
            
-        map_string = "http://www.openstreetmap.org/export/embed.html?bbox="+"%2C".join(bbox[:])+"&marker="+str(lat)+"%2C"+str(long)+"&layers=ND"
+        map_string = "//www.openstreetmap.org/export/embed.html?bbox="+"%2C".join(bbox[:])+"&marker="+str(lat)+"%2C"+str(long)+"&layers=ND"
 
         
         return  html.Div([

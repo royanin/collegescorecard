@@ -20,7 +20,7 @@ SQLALCHEMY_BINDS = {
 }
 
 # mail server settings
-MAIL_SERVER = 'smtp.gmail.com'  
+MAIL_SERVER = ENV_VAR['MAIL_SERVER']  
 MAIL_PORT = 587
 MAIL_USE_TLS = True
 MAIL_USE_SSL = False
@@ -28,7 +28,7 @@ MAIL_USERNAME =  ENV_VAR['MAIL_USERNAME']   #If running locally, change this to 
 MAIL_PASSWORD =  ENV_VAR['MAIL_PASSWORD']    #The password goes of the above email account, in ''
 
 # administrator list
-ADMINS = ['MAIL_USERNAME']        #Some more email if you want to define
+ADMINS = [MAIL_USERNAME]       #Some more email if you want to define
 URGENT_EMAIL = ENV_VAR['URGENT_EMAIL']
 
 #Warning level to raise color flag in the numbers panel
@@ -36,5 +36,5 @@ WARN_LEVEL = 20.0   #this means that particular number in that school is in the 
 
 #website name
 WSNAME = ENV_VAR['WS_NAME']
-CONTACT_RSN_LIST = ['High school student -- searching for college','Parent -- gathering college info for child','Looking to go back to school','Career counselor gathering information','K-12 administrator','College administrator',    'Data analysis/visualization enthusiast','Potential sponsor!','Other']
+CONTACT_RSN_LIST = ['High school student -- searching for college','Parent -- gathering college info for child','Looking to go back to school','Career counselor gathering information','K-12 administrator','College administrator',    'Data analysis/visualization enthusiast','Other']
 

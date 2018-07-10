@@ -44,13 +44,15 @@ layout = html.Div([
 
     html.Div([
         html.Div([
-        html.H2('College ScoreCard Results'),
+        html.H2('The Unofficial College ScoreCard'),
+        html.P('When it comes to choosing a college, we have many questions. How much debt will I have if I go to my favorite college? What will be my salary after graduation? What percentage of students graduate from this college? How good is this school compared to other schools in my reach? At CollegeScoreCard.io you can compare colleges with interactive plots and tables, (and Youtube videos and social media feeds!), all in one place, and for FREE.'),
+        html.Br(),
+        html.P('Numbers presented here come from official sources. At CollegeScoreCard.io we help you make sense of these important numbers.'),
         html.P(children=[html.B('DISCLAIMER:'),
                         html.Span(children=['The official college scorecard website run by US DoE is ',
                         html.A('here...',href='https://collegescorecard.ed.gov/',
                       target="_blank")]),
                      ]),
-        html.P('We take the same dataset, throw in our analysis, interactive tables and plots, live maps, and social media feeds to help you with your college search.'),
             html.Div(id='show_filter_button',children=[
                 html.Button('SHOW FILTERS', id='button-toggle-filter',
                            className="btn btn-md btn-default"),

@@ -33,18 +33,23 @@ round1 = {'padding':'20px','border': '2px solid #1fa5c4', 'border-radius' : '5px
 image_sm = 'flask_app/static/assets/tu.png'
 image_me = 'flask_app/static/assets/meh.png'
 image_fr = 'flask_app/static/assets/td.png'
+image_beta = 'flask_app/static/assets/beta1.png'
 
 
 #Including images for one of the plots
 encoded_sm = base64.b64encode(open(image_sm, 'rb').read())
 encoded_me = base64.b64encode(open(image_me, 'rb').read())
 encoded_fr = base64.b64encode(open(image_fr, 'rb').read())
+encoded_beta = base64.b64encode(open(image_beta, 'rb').read())
 
 layout = html.Div([
 
     html.Div([
         html.Div([
-        html.H2('The Unofficial College ScoreCard'),
+        html.H2(children=[
+            html.Span('The Unofficial College ScoreCard'),
+            html.Img(src='data:image/png;base64,{}'.format(encoded_beta),sizes= 0.15),
+        ]),
         html.P('When it comes to choosing a college, we have many questions. How much debt will I have if I go to my favorite college? What will be my salary after graduation? What percentage of students graduate from this college? How good is this school compared to other schools in my reach? At CollegeScoreCard.io you can compare colleges with interactive plots and tables, (and Youtube videos and social media feeds!), all in one place, and for FREE.'),
         html.Br(),
         html.P('Numbers presented here come from official sources. At CollegeScoreCard.io we help you make sense of these important numbers.'),

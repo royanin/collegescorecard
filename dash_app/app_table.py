@@ -7,14 +7,14 @@ import plotly.graph_objs as go
 import pandas as pd
 import numpy as np
 import json,ast, shelve, re
-from config import set23,set23_rand,nat_set234_mean,col_list, col_list2, tr_dict, subj_dict, \
-    dist_cal, state_list, region_dict,loc_type_dict, acad_type_dict, table_col_list, contact_options_dict, \
-    msg_len_max,pct_rank_qnty_dict, available_indicators,table_col_present_dict
+from config import set23_rand,col_list, col_list2, tr_dict, subj_dict, \
+    dist_cal, state_list, region_dict,loc_type_dict, acad_type_dict, table_col_list, table_col_dict, contact_options_dict, msg_len_max,pct_rank_qnty_dict, available_indicators,table_col_present_dict,MAX_RESULTS #,set23,nat_set234_mean
 from utils import haversine_np
 from flask_app import flask_app, db
 from flask_app.models import Nat_avg, School_details, Zip_to_latlong, Wiki_summary, Email, Message
 import base64
 from operator import itemgetter
+from sqlalchemy.sql import text
 
 from app import app
 
@@ -373,7 +373,6 @@ layout = html.Div([
             #Have this filter-output only in the interim -- to be replaced by tab-output
             html.Div(id='loc-dump', style={'display': 'none'}),
             html.Div(id='dump1', 
-                     #children=json.dumps(set23_rand.iloc[0].reset_index().to_dict('index')[0]),
                      style={'display': 'none'}),
             html.Div(id='dump2', 
                      children=("abcdefghijklmnop"),
@@ -400,8 +399,9 @@ layout = html.Div([
                         #style={'color': 'grey', 'font-size' : '15px'}
                         ),
                 dt.DataTable(
-                    #rows=[{}],
-                    rows= set23_rand.to_dict('records'),
+                    rows=[{}],
+                    #rows= set23_rand.to_dict('records'),
+                    
                     columns=[],                    
                     row_selectable=False,
                     filterable=True,
@@ -418,7 +418,7 @@ layout = html.Div([
                 html.Div([
                     html.Br(),
                     dcc.Checklist(id='col_select_checklist', 
-                    options = [ {'label':col, 'value':col } for col in table_col_list[1:] ],
+                    options = [ {'label':table_col_dict[i], 'value':table_col_dict[i] } for i in table_col_list[3:] ],
                     values=['School', 'Value score','Care score'],
                     labelStyle={'display': 'inline-block'}
                                   
@@ -463,9 +463,9 @@ layout = html.Div([
                     dcc.Dropdown(id='inst_dropdown', 
                              multi=False,
                              placeholder='Choose a school',
-                             options = [ {'label': i, 'value': j} for (i,j) in          zip(set23_rand['INSTNM'].tolist(),set23_rand['OPEID'].tolist()) ],
+                             options = [ {'label': i, 'value': j} for (i,j) in          zip(set23_rand['INSTNM'].tolist(),set23_rand['uid'].tolist()) ],
                              #value = options[0]['value'],
-                             value = set23_rand.iloc[0]['OPEID'],
+                             value = set23_rand.iloc[0]['uid'],
                             className="seven columns"),
                     ], className='row'),
                 ], className='round1'),            
@@ -494,8 +494,9 @@ layout = html.Div([
             html.Br(),
             dcc.Dropdown(
                 id='crossfilter-xaxis-column',
-                options=[{'label': i, 'value': i} for i in table_col_list[3:]],
-                value='Care score'
+                #options=[{'label': i, 'value': i} for i in table_col_list[3:]],
+                options=[{'label': table_col_dict[i], 'value': i} for i in table_col_list[3:]],
+                value='Care_score'
             ),
             dcc.RadioItems(
                 id='crossfilter-xaxis-type',
@@ -509,8 +510,8 @@ layout = html.Div([
             html.Br(),            
             dcc.Dropdown(
                 id='crossfilter-yaxis-column',
-                options=[{'label': i, 'value': i} for i in table_col_list[3:]],
-                value='Value score'
+                options=[{'label': table_col_dict[i], 'value': i} for i in table_col_list[3:]],
+                value='Value_score'
             ),
             dcc.RadioItems(
                 id='crossfilter-yaxis-type',
@@ -759,39 +760,51 @@ def filter_df(n_clicks,sc_type, sc_control, acad_type, adm_range, sat_math, sat_
               loc_type,loc_dist_range,loc_dist_center,loc_state,loc_region):
     
     filter_dict = []
+    sql_filter_dict = []
     lat_in = None
     long_in = None
 
     #school-type related filters
     if sc_type == 'two_' :
         filter_dict.append('PREDDEG == 2')
+        sql_filter_dict.append("School_details.PREDDEG=2")
     elif sc_type == 'four_' :
         #filter_dict['PREDDEG'] = ">2"
         filter_dict.append('PREDDEG > 2')
-
+        sql_filter_dict.append("School_details.PREDDEG>2")
+        
     if len(sc_control) == 2:
         for i in range (1,4):
             if i not in sc_control:
                 filter_dict.append('CONTROL != {}'.format(i))
+                sql_filter_dict.append("School_details.CONTROL<>{}".format(i))                
     
     elif len(sc_control) == 1:
         for i in range (1,4):
             if i in sc_control:
                 filter_dict.append('CONTROL == {}'.format(i))
+                sql_filter_dict.append("School_details.CONTROL={}".format(i))                
 
     #academics related filters                  
     if acad_type == 'adm':
         filter_dict.append('ADJ_ADM_RATE >= {}'.format(adm_range[0]))
         filter_dict.append('ADJ_ADM_RATE <= {}'.format(adm_range[1]))
+        sql_filter_dict.append("School_details.ADJ_ADM_RATE BETWEEN {} AND {}".format(adm_range[0],
+                                                                                      adm_range[1]))                
         
     elif acad_type == 'open':
         filter_dict.append('ADJ_ADM_RATE == 1.0')
+        sql_filter_dict.append("School_details.ADJ_ADM_RATE=1.0")
         
     elif acad_type == 'sat':
         filter_dict.append('SATMTMID >= {}'.format(0.9*sat_math))
         filter_dict.append('SATMTMID <= {}'.format(1.1*sat_math))        
         filter_dict.append('SATVRMID >= {}'.format(0.9*sat_verbal))
-        filter_dict.append('SATVRMID <= {}'.format(1.1*sat_verbal))        
+        filter_dict.append('SATVRMID <= {}'.format(1.1*sat_verbal))
+        sql_filter_dict.append("School_details.SATMTMID BETWEEN {} AND {}".format(0.9*sat_math,
+                                                                                      1.1*sat_math))
+        sql_filter_dict.append("School_details.SATVRMID BETWEEN {} AND {}".format(0.9*sat_verbal,
+                                                                                      1.1*sat_verbal))      
 
                 
     elif acad_type == 'act':
@@ -799,17 +812,20 @@ def filter_df(n_clicks,sc_type, sc_control, acad_type, adm_range, sat_math, sat_
         filter_dict.append('ACTMTMID <= {}'.format(1.1*act_math))        
         filter_dict.append('ACTVRMID >= {}'.format(0.9*act_verbal))
         filter_dict.append('ACTVRMID <= {}'.format(1.1*act_verbal))        
-
+        sql_filter_dict.append("School_details.ACTMTMID BETWEEN {} AND {}".format(0.9*act_math,
+                                                                                      1.1*act_math))
+        sql_filter_dict.append("School_details.ACTVRMID BETWEEN {} AND {}".format(0.9*act_verbal,
+                                                                                      1.1*act_verbal))
+        
+        
     #location related filters:
     if loc_type == 'state':
         filter_dict.append('STABBR == "{}"'.format(loc_state))
+        sql_filter_dict.append("School_details.STABBR='{}'".format(loc_state))                        
     elif loc_type == 'region':
         filter_dict.append('REGION == {}'.format(loc_region))
+        sql_filter_dict.append("School_details.REGION={}".format(loc_region))        
     elif loc_type == 'dist':
-
-        #db_shelve = shelve.open("data/zip_to_lat_long.db", "r")
-        #u = db.session.query(Zip_to_latlong).filter_by(zip_code=str(loc_dist_center)).first()
-        #print "LOCATION:", u.lat_, u.long_, u.zip_code
 
         try:
             if (re.match("^[0-9.]*$",str(loc_dist_range))) and (re.match("^[0-9]*$",str(loc_dist_center))):
@@ -840,15 +856,21 @@ def filter_df(n_clicks,sc_type, sc_control, acad_type, adm_range, sat_math, sat_
                 
     #Construct the query string:
     filter_string = '('+") & (".join(filter_dict[:])+')'
-    filtered_df = set23.query(filter_string)
+
+
+    print 'Constructing sql query:'
+    sql_query_string = ' '+' AND '.join(sql_filter_dict[:])
     
+    sql_query = "SELECT * FROM School_details where{}".format(sql_query_string)
+    filtered_df = pd.read_sql(sql_query,con=db.engine)
     if (lat_in) and (long_in):
         lat_long_mat = filtered_df[['LATITUDE','LONGITUDE']].as_matrix()
         filtered_df['DISTANCE'] = haversine_np(lat_in, long_in,
                                               lat_long_mat[:,0],lat_long_mat[:,1])
 
-        print filtered_df['ZIP5']
-        filtered_df = filtered_df[filtered_df['DISTANCE']<float(loc_dist_range)].copy()
+        filtered_df = filtered_df[filtered_df['DISTANCE']<float(loc_dist_range)].head(MAX_RESULTS).copy()
+    else:
+        filtered_df = filtered_df.head(MAX_RESULTS).copy()
     
     #And finally dump the filtered dataframe into a json.
     #BUG: This changes the dtype of ZIP5 from string to integer
@@ -857,6 +879,24 @@ def filter_df(n_clicks,sc_type, sc_control, acad_type, adm_range, sat_math, sat_
     }
 
     return json.dumps(datasets)
+
+#Get wiki_social info
+"""
+@app.callback(
+Output('show_filter_selection', 'children'),
+[Input('filter-output', 'children')])
+def show_table_desc(json_dataset):
+    if json_dataset is None:
+
+        return html.Div("Showing {} randomly selected colleges".format(35),
+                       style={'text-align':'center'})
+    else:
+        datasets = json.loads(json_dataset)        
+        df_sel = pd.read_json(datasets['df_sel'], orient='split')
+        num_rows = df_sel.shape[0]
+        return html.Div("Showing {} colleges selected based on your filters".format(num_rows),
+                       style={'text-align':'center','color':cc7})  
+"""
 
 
 #callback_collapse:
@@ -932,10 +972,21 @@ Output('datatable-ranking', 'rows'),
 [Input('filter-output', 'children'),
 ])
 def update_datatable(json_dataset):
-    datasets = json.loads(json_dataset)
-    df_sel = pd.read_json(datasets['df_sel'], orient='split')
- 
-    return df_sel.to_dict('records')
+    if json_dataset is None:
+        df_sel = set23_rand
+    else:    
+        datasets = json.loads(json_dataset)
+        df_sel = pd.read_json(datasets['df_sel'], orient='split')
+
+    row_list =  df_sel.to_dict('records')
+    qnt_list = table_col_dict.keys()
+
+    for item in row_list:
+        for qnt in qnt_list:
+            #item['Care score'] = item.pop('CARE_INDEX')
+            item[table_col_dict[qnt]] = item.pop(qnt)
+
+    return row_list
 
 #Callback 1a: Choose a selection of columns to show on the table (from a dropdown list?)
 @app.callback(
@@ -951,10 +1002,13 @@ Output('inst_dropdown', 'options'),
 [Input('filter-output', 'children'),
 ])
 def update_dropdwnlist(json_dataset):
-    datasets = json.loads(json_dataset)
-    df_sel = pd.read_json(datasets['df_sel'], orient='split')
+    if json_dataset is None:
+        df_sel = set23_rand
+    else:
+        datasets = json.loads(json_dataset)
+        df_sel = pd.read_json(datasets['df_sel'], orient='split')
     
-    return [ {'label': i, 'value': j} for (i,j) in zip(df_sel['INSTNM'].tolist(),df_sel['OPEID'].tolist()) ]
+    return [ {'label': i, 'value': j} for (i,j) in zip(df_sel['INSTNM'].tolist(),df_sel['uid'].tolist()) ]
 
 
 @app.callback(
@@ -967,7 +1021,7 @@ def update_dropdwnlistvalue(json_dataset):
     else:
         datasets = json.loads(json_dataset)
         df_sel = pd.read_json(datasets['df_sel'], orient='split')
-    return df_sel.iloc[0]['OPEID']
+    return df_sel.iloc[0]['uid']
 
 
 
@@ -979,7 +1033,7 @@ def show_table_desc(json_dataset):
 
     if json_dataset is None:
         return html.Div([
-            html.P("Showing {} randomly selected colleges; filters applied: None".format(35)),
+            html.P("Showing {} randomly selected colleges; filters applied: None".format(30)),
         ],          style={'text-align':'center'})
     else:
         datasets = json.loads(json_dataset)        
@@ -1002,16 +1056,17 @@ def dfRowFromDropdown(dd_value,json_dataset):
     else:
         datasets = json.loads(json_dataset)        
         df_sel = pd.read_json(datasets['df_sel'], orient='split', dtype={'ZIP5': np.string_,
-                                                                        'REL_AFFIL':np.string_,
-                                                                        'OTHER_AFFIL':np.string_})
-    opeid = dd_value
+                                                        'OPEID':np.string_,
+                                                        'OPEID6':np.string_})
+    uid = dd_value
 
-    sel_inst = json.dumps(df_sel.loc[df_sel['OPEID']==int(opeid)].reset_index().to_dict('index')[0])
+    sel_inst = json.dumps(df_sel.loc[df_sel['uid']==uid].reset_index().to_dict('index')[0])   
 
     if sel_inst is None:
         sel_inst = json.dumps(df_sel.iloc[0].reset_index().to_dict('index')[0])
 
     return json.dumps(sel_inst)
+
 
 #callback4: Update quick_facts, based on dump1
 @app.callback(
@@ -1130,7 +1185,7 @@ def update_wiki(inst1):
         return  html.Div([
                 html.H6('Summary from Wikipedia'),
                 html.Br(),
-                html.Iframe(src="/wiki_summary/"+str(sel_inst['index']),
+                html.Iframe(src="/wiki_summary/"+str(sel_inst['uid']),
                            style={'border': 'none', 'width': '95%', 'height': 415}
                            ),
 
@@ -1170,9 +1225,9 @@ def update_tw(inst1):
     
     if inst1 is not None:
         sel_inst = json.loads(json.loads(inst1))
-        if str(sel_inst['TW_HANDL']) is not None:  
+        if str(sel_inst['uid']) is not None:  
             return  html.Div([
-                    html.Iframe(src="/twt/{}".format(str(sel_inst['TW_HANDL'])),
+                    html.Iframe(src="/twt/{}".format(str(sel_inst['uid'])),
                                 style={'border': 'none', 'width': '100%', 'height': 500}
                                ),
                 ],style={'text-align': 'right'}, className="six columns")
@@ -1191,19 +1246,21 @@ def update_fb(inst1):
     
     if inst1 is not None:
         sel_inst = json.loads(json.loads(inst1))
-        if str(sel_inst['FB_HANDL']) is not None:
-            inst_fb = str(sel_inst['FB_HANDL'])
+        if str(sel_inst['uid']) is not None:
+            w = db.session.query(Wiki_summary).filter_by(uid=sel_inst['uid']).first()
+            if w.FB_HANDL != None:
+                inst_fb = w.FB_HANDL
             
-            return  html.Div([
-                    #html.Br(),
-                    html.Iframe(src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2F"+inst_fb+"&tabs=timeline&width=340&height=500&small_header=true&adapt_container_width=true&hide_cover=false&show_facepile=true&appId=277208896022831",
-                               style={'border': 'none', 'width': '100%', 'height': 500}),
+                return  html.Div([
+                        html.Br(),
+                        html.Iframe(src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2F"+inst_fb+"&tabs=timeline&width=340&height=500&small_header=true&adapt_container_width=true&hide_cover=false&show_facepile=true&appId=277208896022831",
+                                   style={'border': 'none', 'width': '100%', 'height': 500}),
 
 
-                ],className="six columns")
+                    ],className="six columns")
 
-        else:
-            return ""
+            else:
+                return "Sorry, we can't find the Facebook feed..."
 
 #crossfilter-scatter-title        
 @app.callback(
@@ -1231,7 +1288,6 @@ def update_cf_title(xaxis_column_name, yaxis_column_name,inst1):
     ])
 def update_cf_numbers(xaxis_column_name, yaxis_column_name,inst1):
     sel_inst = json.loads(json.loads(inst1))
-    
     return html.Div([
         html.Div([   
         #html.Br(),            
@@ -1241,8 +1297,8 @@ def update_cf_numbers(xaxis_column_name, yaxis_column_name,inst1):
         #html.Div([            
             html.Div([
                 html.Div([
-                    html.P(xaxis_column_name,style={'text-align': 'center'},className="six columns"),                
-                    html.P(yaxis_column_name,style={'text-align': 'center'},className="six columns"),
+                    html.P(table_col_dict[xaxis_column_name],style={'text-align': 'center'},className="six columns"),                
+                    html.P(table_col_dict[yaxis_column_name],style={'text-align': 'center'},className="six columns"),
                 ],className="row"),
                 
                 html.Div([        
@@ -1274,7 +1330,7 @@ def update_cf_numbers(xaxis_column_name, yaxis_column_name,inst1):
     ])
 def update_graph(xaxis_column_name, yaxis_column_name,xaxis_type, yaxis_type,json_dataset,inst1):
     
-    no_avg_detect = ['Value score', 'Care score', 'Returning student %']
+    no_avg_detect = ['Value_score', 'Care_score', 'r_fin_COMB_RET_RATE'] #
     
     if json_dataset is None:
         df_sel2 = set23_rand
@@ -1282,8 +1338,9 @@ def update_graph(xaxis_column_name, yaxis_column_name,xaxis_type, yaxis_type,jso
         datasets = json.loads(json_dataset)
         df_sel2 = pd.read_json(datasets['df_sel'], orient='split')    
     
-    df_sel = df_sel2[list(set(['INSTNM',xaxis_column_name,yaxis_column_name]+table_col_present_dict.keys()
-                    +table_col_present_dict.values() ) )]
+
+    df_sel = df_sel2[list(set(['INSTNM',xaxis_column_name,yaxis_column_name]+table_col_list
+                              +table_col_present_dict.values() ) )]
     sel_inst = json.loads(json.loads(inst1))
     list_len = df_sel[yaxis_column_name].count()
     
@@ -1292,14 +1349,15 @@ def update_graph(xaxis_column_name, yaxis_column_name,xaxis_type, yaxis_type,jso
         df_sel['qts_present'] = np.ones(list_len)
     else:
         df_sel.is_copy = False
-        df_sel['qts_present'] = df_sel.apply(lambda row:            row[table_col_present_dict[xaxis_column_name]], axis=1)
+        #df_sel['qts_present'] = df_sel.apply(lambda row: row[table_col_present_dict[xaxis_column_name]], axis=1)
+        df_sel['qts_present'] = df_sel.apply(lambda row: row[xaxis_column_name], axis=1)
     
     if (yaxis_column_name in no_avg_detect):
         df_sel.is_copy = False
         df_sel['qts_present'] = df_sel.apply(lambda row: row['qts_present']+ 1.0, axis=1)       
     else:
         df_sel.is_copy = False
-        df_sel['qts_present'] = df_sel.apply(lambda row: row['qts_present']+         row[table_col_present_dict[yaxis_column_name]], axis=1)    
+        df_sel['qts_present'] = df_sel.apply(lambda row: row['qts_present']+row[yaxis_column_name], axis=1)    
 
     
     
@@ -1344,11 +1402,11 @@ def update_graph(xaxis_column_name, yaxis_column_name,xaxis_type, yaxis_type,jso
 
     layout = go.Layout(
             xaxis={
-                'title': xaxis_column_name,
+                'title': table_col_dict[xaxis_column_name],
                 'type': 'log' if xaxis_type == 'log' else 'linear'
             },
             yaxis={
-                'title': yaxis_column_name,
+                'title': table_col_dict[yaxis_column_name],
                 'type': 'log' if yaxis_type == 'log' else 'linear'
             },
             margin={'l': 60, 'b': 40, 't': 10, 'r': 0},
@@ -1376,22 +1434,23 @@ def update_pct_satisfaction(inst1):
     sel_inst = json.loads(json.loads(inst1))
 
     pop_subj_pc = ast.literal_eval(sel_inst['POP_SUBS'])
-    cs_index = sel_inst['index']
-    sch = db.session.query(School_details).filter_by(cs_index=cs_index).first()
+    uid = sel_inst['uid']
+    sch = db.session.query(School_details).filter_by(uid=uid).first()
     nat_mean = db.session.query(Nat_avg).filter_by(CCBASIC=sch.CCBASIC).first()    
+
     
     symbol_qnty_dict = {
-    'E':(sch.fin_MN_EARN_WNE_P6, nat_mean.MN_EARN_WNE_P6,'Earning (mean, USD)'),
-    'D':(sch.fin_DEBT_MDN,nat_mean.DEBT_MDN,'Debt (median, USD)',''),
-    'C':(sch.fin_C150_4_COMB*100,nat_mean.C150_4_COMB*100,'Completion (%)',''),
-    '$':(sch.fin_COSTT4_COMB,nat_mean.COSTT4_COMB,'Sticker price (mean, USD)',''),
-    'W':(sch.fin_WDRAW_ORIG_YR6_RT*100,nat_mean.WDRAW_ORIG_YR6_RT*100,'Withdrawal (%)'),
-    'N':(sch.fin_NPT4_COMB,nat_mean.NPT4_COMB,'Net price (mean, USD)'),
-    'P':(sch.fin_PCTPELL*100,nat_mean.PCTPELL*100,'Pell recipients (%)'),
+    'E':(sch.r_fin_MN_EARN_WNE_P6, nat_mean.MN_EARN_WNE_P6,'Earning (mean, USD)'),
+    'D':(sch.r_fin_DEBT_MDN,nat_mean.DEBT_MDN,'Debt (median, USD)',''),
+    'C':(sch.r_fin_C150_4_COMB*100,nat_mean.C150_4_COMB*100,'Completion (%)',''),
+    '$':(sch.r_fin_COSTT4_COMB,nat_mean.COSTT4_COMB,'Sticker price (mean, USD)',''),
+    'W':(sch.r_fin_WDRAW_ORIG_YR6_RT*100,nat_mean.WDRAW_ORIG_YR6_RT*100,'Withdrawal (%)'),
+    'N':(sch.r_fin_NPT4_COMB,nat_mean.NPT4_COMB,'Net price (mean, USD)'),
+    'P':(sch.r_fin_PCTPELL*100,nat_mean.PCTPELL*100,'Pell recipients (%)'),
     #'rankp_ADJ_AVGFACSAL':'',
-    'Ex':(sch.fin_ADJ_INEXPFTE,nat_mean.ADJ_INEXPFTE,'Expenses per student (USD)'),
-    'FT':(sch.fin_PFTFAC*100,nat_mean.PFTFAC*100,'Full-time faculty (%)'),
-    'R':(sch.fin_COMB_RET_RATE*100,nat_mean.COMB_RET_RATE*100,'Returning students (%)')
+    'Ex':(sch.r_fin_ADJ_INEXPFTE,nat_mean.ADJ_INEXPFTE,'Expenses per student (USD)'),
+    'FT':(sch.r_fin_PFTFAC*100,nat_mean.PFTFAC*100,'Full-time faculty (%)'),
+    'R':(sch.r_fin_COMB_RET_RATE*100,nat_mean.COMB_RET_RATE*100,'Returning students (%)')
     }
     
     #hoverinfo = 'label+percent'
@@ -1477,7 +1536,8 @@ def numbers_glance(inst1):
         return  html.Div([
                 #html.H6('Numbers at a glance'),
                 html.Br(),
-                html.Iframe(src="/numbers/"+str(sel_inst['index']),
+                html.Iframe(src="/numbers/"+str(sel_inst['uid']), 
+                            #use uid
                            style={'border': 'none', 'width': '100%', 'height': 725}
                            ),
 

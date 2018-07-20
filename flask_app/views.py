@@ -6,24 +6,28 @@ from .emails import notify_server_error, new_message
 
 
 
-@flask_app.route('/twt/<tw_handl>')
-def show_tw(tw_handl):
-    if tw_handl != 'nan':
-        return('<a class="twitter-timeline" href="https://twitter.com/'+tw_handl+'?ref_src=twsrc%5Etfw/">Tweets</a> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>')
+@flask_app.route('/twt/<uid>')
+def show_tw(uid):
+    w = db.session.query(Wiki_summary).filter_by(uid=uid).first()
+    #print w.TW_HANDL
+    if w.TW_HANDL != None:
+        return('<a class="twitter-timeline" href="https://twitter.com/'+str(w.TW_HANDL)+'?ref_src=twsrc%5Etfw/">Tweets</a> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>')
     else:
         return("<h4>Sorry, we can't find the twitter feed...</h4>")
 
-@flask_app.route('/wiki_summary/<cs_index>')
-def show_wiki_summary(cs_index):
-    w = db.session.query(Wiki_summary).filter_by(cs_index=cs_index).first()
+@flask_app.route('/wiki_summary/<uid>')
+def show_wiki_summary(uid):
+    w = db.session.query(Wiki_summary).filter_by(uid=uid).first()
     if w != None:
         return render_template("wiki_summary.html",w=w)
     else:
         return ("No entries found.")
 
-@flask_app.route('/numbers/<cs_index>')
-def show_numbers(cs_index):
-    sch = db.session.query(School_details).filter_by(cs_index=cs_index).first()
+
+@flask_app.route('/numbers/<uid>')
+def show_numbers(uid):
+    #sch = db.session.query(School_details).filter_by(cs_index=cs_index).first()
+    sch = db.session.query(School_details).filter_by(uid=uid).first()
     nat_mean = db.session.query(Nat_avg).filter_by(CCBASIC=sch.CCBASIC).first()
     if sch != None:
         return render_template("numbers.html",sch=sch,nat_mean=nat_mean,WARN_LEVEL=WARN_LEVEL)
@@ -33,21 +37,16 @@ def show_numbers(cs_index):
 
 @flask_app.route('/social/')
 def social_shares():
-    print 'In social shares'
 
     return render_template("form_share_social.html")
-
-@flask_app.route('/sm/')
-def fa_sm():
-    print 'in smiley'
-    return render_template("fa_smiley.html")
 
 
 @flask_app.route('/contact_us', methods=['GET', 'POST'])
 def contact_form():
     g.contact_form = ContactForm()
-    print 'Here in contact form!'
 
+    #get the request details
+    #TODO: Store them in the database
     if request.method == "POST" and g.contact_form.validate_on_submit():
         sender_email = g.contact_form.email.data
         sender_msg = g.contact_form.message.data

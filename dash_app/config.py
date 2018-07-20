@@ -1,14 +1,12 @@
 import pandas as pd
 import numpy as np
-#from app_db import db, models
 
-set23 = pd.read_csv('data/set_234.csv', dtype={#'OPEID': np.string_ ,
-                            #'OPEID6': np.string_ ,
-                            'ZIP5': np.string_ }
-                   )
-#set23.drop('GP_HANDL',axis=1, inplace=True)
-set23_rand = set23.sample(n=30)
-nat_set234_mean = pd.read_csv('data/grouped_mean_set234.csv')
+set23_rand = pd.read_csv('data/set_234_rand.csv', dtype={'OPEID': np.string_ ,
+                            'OPEID6': np.string_ ,
+                            'ZIP5': np.string_ })
+
+MAX_RESULTS = 50
+
 available_indicators = ['VALUE_INDEX','CARE_INDEX','fin_ADJ_AVGFACSAL','fin_ADJ_INEXPFTE']
 
 col_list = ['87,88,187','18,137,167','163,203,56','247,105,76',
@@ -109,8 +107,32 @@ acad_type_dict = {
     5:'sat'
 }
 
-table_col_list = ['School','OPEID', 'OPEID6', 'Value score', 'Care score','Mean earning USD',
-                  'Median debt USD', 'Completion %', 'Avg. cost USD', 'Withdrawal %', 'Net Price USD', 'Pell students %','Avg. faculty salary USD', '% FT students', '% FT faculty', 'Returning student %', 'Expenses per student USD']
+
+table_col_list = ['INSTNM','OPEID', 'OPEID6', 'Value_score', 'Care_score', 'r_fin_MN_EARN_WNE_P6', 'r_fin_DEBT_MDN', 'r_fin_C150_4_COMB', 'r_fin_COSTT4_COMB', 'r_fin_WDRAW_ORIG_YR6_RT', 'r_fin_NPT4_COMB', 'r_fin_PCTPELL', 'r_fin_ADJ_AVGFACSAL', 'r_fin_PFTFTUG1_EF', 'r_fin_PFTFAC', 'r_fin_COMB_RET_RATE', 'r_fin_ADJ_INEXPFTE']
+
+
+table_col_dict = {'INSTNM':'School',
+                  'OPEID':'OPEID',
+                  'ZIP5' : 'Zip',                  
+                  'OPEID6':'OPEID6',
+                  #'VALUE_INDEX':'Value index',
+                  #'CARE_INDEX':'Care index',
+                  'Value_score':'Value score',
+                  'Care_score':'Care score',                  
+                  'r_fin_MN_EARN_WNE_P6':'Mean earning USD',
+                  'r_fin_DEBT_MDN':'Median debt USD',
+                  'r_fin_C150_4_COMB':'Completion %',
+                  'r_fin_COSTT4_COMB':'Avg. cost USD',
+                  'r_fin_WDRAW_ORIG_YR6_RT':'Withdrawal %',
+                  'r_fin_NPT4_COMB':'Net Price USD',
+                  'r_fin_PCTPELL':'Pell students %',
+                  'r_fin_ADJ_AVGFACSAL':'Avg. faculty salary USD',
+                  'r_fin_PFTFTUG1_EF':'% FT students',
+                  'r_fin_PFTFAC':'% FT faculty',
+                  'r_fin_COMB_RET_RATE':'Returning student %',
+                  'r_fin_ADJ_INEXPFTE':'Expenses per student USD'}
+
+
 
 table_col_present_dict = {
     'Mean earning USD':'MN_EARN_WNE_P6_PRESENT',
@@ -124,15 +146,6 @@ table_col_present_dict = {
     '% FT students':'PFTFTUG1_EF_PRESENT',
     '% FT faculty':'PFTFAC_PRESENT',
     'Expenses per student USD':'ADJ_INEXPFTE_PRESENT'
-}
-
-
-
-table_col_dict = {
-    'INSTNM': 'School',
-    'OPEID' : 'OPEID',
-    'ZIP5' : 'Zip',
-    
 }
 
 contact_options_dict = {
@@ -161,18 +174,3 @@ pct_rank_qnty_dict = {
     'rankp_PFTFAC':'FT',
     'rankp_COMB_RET_RATE':'R'
 }
-"""
-symbol_qnty_dict = {
-    'E':('MN_EARN_WNE_P6','Earning (6-yr.)','E captures the average reported annual salary (in US$) for the graduates who are working and not enrolled in school, 6 year since graduation'),
-    'D':('DEBT_MDN','Earning (6-yr.)','E captures the average reported annual salary (in US$) for the graduates who are working and not enrolled in school, 6 year since graduation'),
-    'C':('C150_4_COMB','Earning (6-yr.)','E captures the average reported annual salary (in US$) for the graduates who are working and not enrolled in school, 6 year since graduation'),
-    '$':('COSTT4_COMB','Earning (6-yr.)','E captures the average reported annual salary (in US$) for the graduates who are working and not enrolled in school, 6 year since graduation'),
-    'W':('WDRAW_ORIG_YR6_RT','Earning (6-yr.)','E captures the average reported annual salary (in US$) for the graduates who are working and not enrolled in school, 6 year since graduation'),
-    'N':('NPT4_COMB','Earning (6-yr.)','E captures the average reported annual salary (in US$) for the graduates who are working and not enrolled in school, 6 year since graduation'),
-    'P':('PCTPELL','Earning (6-yr.)','E captures the average reported annual salary (in US$) for the graduates who are working and not enrolled in school, 6 year since graduation'),
-    #'rankp_ADJ_AVGFACSAL':'',
-    'Ex':('ADJ_INEXPFTE','Earning (6-yr.)','E captures the average reported annual salary (in US$) for the graduates who are working and not enrolled in school, 6 year since graduation'),
-    'FT':('PFTFAC','Earning (6-yr.)','E captures the average reported annual salary (in US$) for the graduates who are working and not enrolled in school, 6 year since graduation'),
-    'R':('COMB_RET_RATE','Earning (6-yr.)','E captures the average reported annual salary (in US$) for the graduates who are working and not enrolled in school, 6 year since graduation')
-}
-"""

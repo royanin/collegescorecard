@@ -5,7 +5,7 @@
     
 <!-- <i class="fa fa-frown-o fa-5x" style="color:#0047b3;"></i> -->
     <div class="container">
-    {% if sch.id != None %}
+    {% if sch.uid != None %}
         <!-- <h4>{{ sch.INSTNM }}</h4> -->
           <table class="table table-striped">
             <thead>
@@ -27,7 +27,7 @@
                 <td>D</td>  
                       <td><abbr>Debt (median $)<span>Median original loan amount as students enter the repayment program</span></abbr></td>
                 {% if sch.DEBT_MDN_PRESENT != 0 %}
-                <td>{{ sch.fin_DEBT_MDN }}</td>
+                <td>{{ sch.r_fin_DEBT_MDN }}</td>
                 {% else %}
                 <td> - </td>
                 {% endif %}
@@ -46,7 +46,7 @@
                 <td>E</td>  
                 <td><abbr>Earning (6-yr.)<span>Mean earning of students who are working and not enrolled 6 years after their entry to the school</span></abbr></td>
                 {% if sch.MN_EARN_WNE_P6_PRESENT != 0 %}
-                <td>{{ sch.fin_MN_EARN_WNE_P6 }}</td>
+                <td>{{ sch.r_fin_MN_EARN_WNE_P6 }}</td>
                 {% else %}
                 <td> - </td>
                 {% endif %}
@@ -67,11 +67,11 @@
 
                       <td><abbr>Completion (%)<span>% of full-time AND first-time students who complete within 150% of expected time to completion</span></abbr></td>
                 {% if sch.C150_4_COMB_PRESENT != 0 %}
-                <td>{{ sch.fin_C150_4_COMB*100 }}</td>
+                <td>{{ sch.r_fin_C150_4_COMB }}</td>
                 {% else %}
                 <td> - </td>
                 {% endif %}
-                <td>{{ nat_mean.C150_4_COMB*100 }}</td>
+                <td>{{ nat_mean.C150_4_COMB }}</td>
                   </p>
               </tr>
             {# row completion ends #}                
@@ -86,7 +86,7 @@
                 <td>$</td>  
                       <td><abbr>Sticker price (avg. $):<span> Net price + the average scholarship grants/aid</span></abbr></td>
                 {% if sch.COSTT4_COMB != 0 %}
-                <td>{{ sch.fin_COSTT4_COMB }}</td>
+                <td>{{ sch.r_fin_COSTT4_COMB }}</td>
                 {% else %}
                 <td> - </td>
                 {% endif %}
@@ -106,7 +106,7 @@
                 <td>N</td> 
                 <td><abbr>Net price (avg. $)<span>Average net price for Title IV public, private for-profit and nonprofit institutions.</span></abbr></td>
                 {% if sch.NPT4_COMB_PRESENT != 0 %}
-                <td>{{ sch.fin_NPT4_COMB }}</td>
+                <td>{{ sch.r_fin_NPT4_COMB }}</td>
                 {% else %}
                 <td> - </td>
                 {% endif %}
@@ -125,11 +125,11 @@
                 <td>W</td>  
                 <td><abbr>Withdrawal (%)<span>% of students withdrawn from original institution within 6 years</span></abbr></td>
                 {% if sch.WDRAW_ORIG_YR6_RT_PRESENT != 0 %}
-                <td>{{ sch.fin_WDRAW_ORIG_YR6_RT*100 }}</td>
+                <td>{{ sch.r_fin_WDRAW_ORIG_YR6_RT }}</td>
                 {% else %}
                 <td> - </td>
                 {% endif %}
-                <td>{{ nat_mean.WDRAW_ORIG_YR6_RT*100 }}</td>
+                <td>{{ nat_mean.WDRAW_ORIG_YR6_RT }}</td>
                   </p>
               </tr>
             {# row withdrawal ends #}
@@ -144,11 +144,11 @@
                 <td>P</td>  
                 <td><abbr>Pell recipient (%)<span>% of undergraduates who receive a Pell Grant</span></abbr></td>
                 {% if sch.PCTPELL_PRESENT != 0 %}
-                <td>{{ sch.fin_PCTPELL*100 }}</td>
+                <td>{{ sch.r_fin_PCTPELL }}</td>
                 {% else %}
                 <td> - </td>
                 {% endif %}
-                <td>{{ nat_mean.PCTPELL*100 }}</td>
+                <td>{{ nat_mean.PCTPELL }}</td>
                   </p>
               </tr>
             {# row pell pct ends #}
@@ -163,7 +163,7 @@
                 <td>Ex</td>  
                 <td><abbr>Expenses on students (avg, %)<span>The amount schools spend on instructional expenditures per full-time equivalent student, adjusted for location</span></abbr></td>
                 {% if sch.ADJ_INEXPFTE_PRESENT != 0 %}
-                <td>{{ sch.fin_ADJ_INEXPFTE }}</td>
+                <td>{{ sch.r_fin_ADJ_INEXPFTE }}</td>
                 {% else %}
                 <td> - </td>
                 {% endif %}
@@ -182,11 +182,11 @@
                 <td>R</td>  
                 <td><abbr>Returing student (%)<span>% of students who come back after first year of college</span></abbr></td>
                 {% if (sch.RET_FT4_COMB_PRESENT)*(sch.RET_PT4_COMB_PRESENT)*(sch.PFTFTUG1_EF_PRESENT) != 0 %}
-                <td>{{ sch.fin_COMB_RET_RATE*100 }}</td>
+                <td>{{ sch.r_fin_COMB_RET_RATE }}</td>
                 {% else %}
                 <td> - </td>
                 {% endif %}
-                <td>{{ nat_mean.COMB_RET_RATE*100 }}</td>
+                <td>{{ nat_mean.COMB_RET_RATE }}</td>
                   </p>
               </tr>
             {# row returning student pct ends #}  
@@ -201,11 +201,11 @@
                 <td>FT</td>  
                 <td><abbr>Full-time faculty (%)<span>% of full-time faculty</span></abbr></td>
                 {% if sch.PFTFAC_PRESENT != 0 %}
-                <td>{{ sch.fin_PFTFAC*100 }}</td>
+                <td>{{ sch.r_fin_PFTFAC }}</td>
                 {% else %}
                 <td> - </td>
                 {% endif %}
-                <td>{{ nat_mean.PFTFAC*100 }}</td>
+                <td>{{ nat_mean.PFTFAC }}</td>
                   </p>
               </tr>
             {# row FT fac pct ends #}  

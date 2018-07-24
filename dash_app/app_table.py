@@ -11,7 +11,7 @@ from config import set23_rand,col_list, col_list2, tr_dict, subj_dict, \
     dist_cal, state_list, region_dict,loc_type_dict, acad_type_dict, table_col_list, table_col_dict, contact_options_dict, msg_len_max,pct_rank_qnty_dict, available_indicators,table_col_present_dict,MAX_RESULTS #,set23,nat_set234_mean
 from utils import haversine_np
 from flask_app import flask_app, db
-from flask_app.models import Nat_avg, School_details, Zip_to_latlong, Wiki_summary, Email, Message
+from flask_app.models import Nat_avg, School_details, Zip_to_latlong, Wiki_summary, Message #Email
 import base64
 from operator import itemgetter
 from sqlalchemy.sql import text

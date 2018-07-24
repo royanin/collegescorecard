@@ -6,11 +6,17 @@ print basedir
 CSRF_ENABLED = True
 SECRET_KEY = ENV_VAR['CSRF_KEY']    #CSRF secret -- this should be as protected as the email password mentioned below
 
-#SQLALCHEMY_DATABASE_URI = 'sqlite:///app.db'
-SQLALCHEMY_TRACK_MODIFICATIONS = False
 #db = SQLAlchemy(server)
 #con=db.engine.connect().connection
 
+SQLALCHEMY_TRACK_MODIFICATIONS = False
+#SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'app.db')
+SQLALCHEMY_DATABASE_URI = 'mysql://{}:{}@localhost/{}'.format(ENV_VAR['DB_USER'],ENV_VAR['PASSWD'],ENV_VAR['DB_1'])
+SQLALCHEMY_BINDS = {
+    'message':      'mysql://{}:{}@localhost/{}'.format(ENV_VAR['DB_USER'],ENV_VAR['PASSWD'],ENV_VAR['DB_2'])
+    #'message' : 'sqlite:///' + os.path.join(basedir, 'app_data.db')
+}
+"""
 
 SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'data/app.db')
 SQLALCHEMY_BINDS = {
@@ -18,7 +24,7 @@ SQLALCHEMY_BINDS = {
     'message':        'sqlite:///' + os.path.join(basedir, 'data/app_data.db'),    
     #'appmeta':      'sqlite:////path/to/appmeta.db'
 }
-
+"""
 # mail server settings
 MAIL_SERVER = ENV_VAR['MAIL_SERVER']  
 MAIL_PORT = 587

@@ -1,6 +1,25 @@
 from flask_app import flask_app,db
 from datetime import datetime
 
+
+class Message(db.Model):
+    __bind_key__ = 'message'
+
+    id = db.Column(db.Integer, primary_key=True)
+    body = db.Column(db.String(500), index=True, nullable=False)
+    email = db.Column(db.String(100), index=True, nullable=False)
+    sender_type = db.Column(db.String(100), nullable=False)    
+    subscribed =  db.Column(db.Boolean)    
+    timestamp =  db.Column(db.DateTime)
+    
+    def __init__(self,body,email,sender_type,subscribed):
+        self.body = body
+        self.email = email        
+        self.sender_type = sender_type
+        self.subscribed = subscribed    
+        self.timestamp = datetime.utcnow()
+
+
 class Zip_to_latlong(db.Model):
 
     __tablename__ = 'zip_to_latlong'
@@ -22,10 +41,10 @@ class Wiki_summary(db.Model):
     __tablename__ = 'wiki_social'
 
     id = db.Column(db.Integer, index=True, primary_key=True)
-    uid = db.Column(db.String(150), index=True, unique=True)
+    uid = db.Column(db.String(150), index=True, unique=True, nullable=False)
     inst_nm = db.Column(db.String(100))
     OPEID = db.Column(db.String(10))
-    wiki_summary = db.Column(db.String(2000))
+    wiki_summary = db.Column(db.String(10000))
     date_extracted = db.Column(db.String(10))
     wiki_url = db.Column(db.String(150))
     FB_HANDL = db.Column(db.String(100))
@@ -42,36 +61,6 @@ class Wiki_summary(db.Model):
         self.wiki_url = wiki_url
         self.FB_HANDL = FB_HANDL
         self.TW_HANDL = TW_HANDL        
-
-        
-class Email(db.Model):
-    __bind_key__ = 'email'
-
-    id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(100), index=True, nullable=False, unique=True)
-    subscribed =  db.Column(db.Boolean)
-    timestamp =  db.Column(db.DateTime)    
-    messages = db.relationship('Message', backref='email', lazy='dynamic', cascade="all, delete-orphan")    
-    
-    def __init__(self,email,subscribed):
-        self.email = email
-        self.subscribed = subscribed
-        self.timestamp = datetime.utcnow()
-    
-    
-class Message(db.Model):
-    __bind_key__ = 'message'
-
-    id = db.Column(db.Integer, primary_key=True)
-    body = db.Column(db.String(500), index=True, nullable=False)
-    timestamp =  db.Column(db.DateTime)
-    email_id = db.Column(db.Integer, db.ForeignKey('email.id', ondelete='CASCADE'), nullable=False)    
-    
-    def __init__(self,body,email_id):
-        self.body = body
-        self.email_id = email_id
-        self.timestamp = datetime.utcnow()    
-
 
 class Nat_avg(db.Model):
     __tablename__ = 'national_average'
@@ -126,7 +115,7 @@ class School_details(db.Model):
     ZIP5 = db.Column(db.String(5))
     PREDDEG = db.Column(db.Integer)
     HTTPS_INSTURL = db.Column(db.String(100))
-    HTTPS_NPCURL = db.Column(db.String(100))
+    HTTPS_NPCURL = db.Column(db.String(300))
     HIGHDEG = db.Column(db.Integer)
     CONTROL = db.Column(db.Integer)
     REGION = db.Column(db.Integer)
@@ -142,14 +131,15 @@ class School_details(db.Model):
     ACTCMMID = db.Column(db.Float(5))
     ACTENMID = db.Column(db.Float(5))
     ACTMTMID = db.Column(db.Float(5))
-    ACTWRMID = db.Column(db.Float(5))
+    ACTWRMID = db.Column(db.Float(5), nullable=True)
     POP_SUBS = db.Column(db.String(400))
+    #POP_SUBS = db.Column(db.PickleType)
     UGDS = db.Column(db.Float(5))
     TUITIONFEE_IN = db.Column(db.Float(5))
     TUITIONFEE_OUT = db.Column(db.Float(5))
     ADJ_ADM_RATE = db.Column(db.Float(5))
-    OTHER_AFFIL = db.Column(db.String(100))
-    REL_AFFIL = db.Column(db.String(100))
+    OTHER_AFFIL = db.Column(db.String(300))
+    REL_AFFIL = db.Column(db.String(100), nullable=True)
     COUNT_MISSING = db.Column(db.Integer)
     VALUE_INDEX = db.Column(db.Float(5))
     CARE_INDEX = db.Column(db.Float(5))

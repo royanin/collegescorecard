@@ -1,6 +1,6 @@
 from flask import render_template, flash, redirect, session, url_for, request, g, json, jsonify, send_from_directory
 from flask_app import flask_app, db, WARN_LEVEL
-from models import Wiki_summary, Nat_avg, School_details
+from models import Wiki_summary, Nat_avg, School_details, Message
 from .forms import ContactForm
 from .emails import notify_server_error, new_message
 
@@ -46,16 +46,24 @@ def contact_form():
     g.contact_form = ContactForm()
 
     #get the request details
-    #TODO: Store them in the database
     if request.method == "POST" and g.contact_form.validate_on_submit():
         sender_email = g.contact_form.email.data
         sender_msg = g.contact_form.message.data
         sender_type = g.contact_form.contact_reason.data
         get_newsletter = g.contact_form.get_newsletter.data
-        print sender_email, sender_msg, sender_type, get_newsletter
-        session['message'] = "Thank you for getting in touch with us!"
 
+        session['message'] = "Thank you for getting in touch with us!"
+        
+        #The following line sends email
         new_message(sender_email,sender_msg, sender_type, get_newsletter)
+        #The next 3 lines store the message in the database email
+        new_msg = Message(body=sender_msg,
+                          email=sender_email,
+                          sender_type=sender_type,
+                            subscribed=False)
+        db.session.add(new_msg)
+        db.session.commit()            
+        
         return ('', 204)
 
     elif request.method == "POST":

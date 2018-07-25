@@ -862,7 +862,7 @@ def filter_df(n_clicks,sc_type, sc_control, acad_type, adm_range, sat_math, sat_
     print 'Constructing sql query:'
     sql_query_string = ' '+' AND '.join(sql_filter_dict[:])
     
-    sql_query = "SELECT * FROM School_details where{}".format(sql_query_string)
+    sql_query = "SELECT * FROM school_details where{}".format(sql_query_string)
     filtered_df = pd.read_sql(sql_query,con=db.engine)
     if (lat_in) and (long_in):
         lat_long_mat = filtered_df[['LATITUDE','LONGITUDE']].as_matrix()

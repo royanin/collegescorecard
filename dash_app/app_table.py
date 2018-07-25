@@ -18,6 +18,7 @@ from sqlalchemy.sql import text
 
 from app import app
 
+
 cc1 = '#efe9cb'
 cc2 = 'rgba(12,67,220,0.7)'
 cc3 = 'rgba(220,20,20,0.9)'
@@ -767,43 +768,43 @@ def filter_df(n_clicks,sc_type, sc_control, acad_type, adm_range, sat_math, sat_
     #school-type related filters
     if sc_type == 'two_' :
         filter_dict.append('PREDDEG == 2')
-        sql_filter_dict.append("School_details.PREDDEG=2")
+        sql_filter_dict.append("school_details.PREDDEG=2")
     elif sc_type == 'four_' :
         #filter_dict['PREDDEG'] = ">2"
         filter_dict.append('PREDDEG > 2')
-        sql_filter_dict.append("School_details.PREDDEG>2")
+        sql_filter_dict.append("school_details.PREDDEG>2")
         
     if len(sc_control) == 2:
         for i in range (1,4):
             if i not in sc_control:
                 filter_dict.append('CONTROL != {}'.format(i))
-                sql_filter_dict.append("School_details.CONTROL<>{}".format(i))                
+                sql_filter_dict.append("school_details.CONTROL<>{}".format(i))                
     
     elif len(sc_control) == 1:
         for i in range (1,4):
             if i in sc_control:
                 filter_dict.append('CONTROL == {}'.format(i))
-                sql_filter_dict.append("School_details.CONTROL={}".format(i))                
+                sql_filter_dict.append("school_details.CONTROL={}".format(i))                
 
     #academics related filters                  
     if acad_type == 'adm':
         filter_dict.append('ADJ_ADM_RATE >= {}'.format(adm_range[0]))
         filter_dict.append('ADJ_ADM_RATE <= {}'.format(adm_range[1]))
-        sql_filter_dict.append("School_details.ADJ_ADM_RATE BETWEEN {} AND {}".format(adm_range[0],
+        sql_filter_dict.append("school_details.ADJ_ADM_RATE BETWEEN {} AND {}".format(adm_range[0],
                                                                                       adm_range[1]))                
         
     elif acad_type == 'open':
         filter_dict.append('ADJ_ADM_RATE == 1.0')
-        sql_filter_dict.append("School_details.ADJ_ADM_RATE=1.0")
+        sql_filter_dict.append("school_details.ADJ_ADM_RATE=1.0")
         
     elif acad_type == 'sat':
         filter_dict.append('SATMTMID >= {}'.format(0.9*sat_math))
         filter_dict.append('SATMTMID <= {}'.format(1.1*sat_math))        
         filter_dict.append('SATVRMID >= {}'.format(0.9*sat_verbal))
         filter_dict.append('SATVRMID <= {}'.format(1.1*sat_verbal))
-        sql_filter_dict.append("School_details.SATMTMID BETWEEN {} AND {}".format(0.9*sat_math,
+        sql_filter_dict.append("school_details.SATMTMID BETWEEN {} AND {}".format(0.9*sat_math,
                                                                                       1.1*sat_math))
-        sql_filter_dict.append("School_details.SATVRMID BETWEEN {} AND {}".format(0.9*sat_verbal,
+        sql_filter_dict.append("school_details.SATVRMID BETWEEN {} AND {}".format(0.9*sat_verbal,
                                                                                       1.1*sat_verbal))      
 
                 
@@ -812,19 +813,19 @@ def filter_df(n_clicks,sc_type, sc_control, acad_type, adm_range, sat_math, sat_
         filter_dict.append('ACTMTMID <= {}'.format(1.1*act_math))        
         filter_dict.append('ACTVRMID >= {}'.format(0.9*act_verbal))
         filter_dict.append('ACTVRMID <= {}'.format(1.1*act_verbal))        
-        sql_filter_dict.append("School_details.ACTMTMID BETWEEN {} AND {}".format(0.9*act_math,
+        sql_filter_dict.append("school_details.ACTMTMID BETWEEN {} AND {}".format(0.9*act_math,
                                                                                       1.1*act_math))
-        sql_filter_dict.append("School_details.ACTVRMID BETWEEN {} AND {}".format(0.9*act_verbal,
+        sql_filter_dict.append("school_details.ACTVRMID BETWEEN {} AND {}".format(0.9*act_verbal,
                                                                                       1.1*act_verbal))
         
         
     #location related filters:
     if loc_type == 'state':
         filter_dict.append('STABBR == "{}"'.format(loc_state))
-        sql_filter_dict.append("School_details.STABBR='{}'".format(loc_state))                        
+        sql_filter_dict.append("school_details.STABBR='{}'".format(loc_state))                        
     elif loc_type == 'region':
         filter_dict.append('REGION == {}'.format(loc_region))
-        sql_filter_dict.append("School_details.REGION={}".format(loc_region))        
+        sql_filter_dict.append("school_details.REGION={}".format(loc_region))        
     elif loc_type == 'dist':
 
         try:

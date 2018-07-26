@@ -667,7 +667,8 @@ layout = html.Div([
                ],className="row"),
                html.Br(),
                html.Br(),
-               html.Hr(),               
+               html.Hr(),   
+               html.P("WARNING: this website is still under construction, and use the information on this website at your own risk.")
            ],className="twelve columns",style={'text-align':'center'})   
          
         ],className='container'),  

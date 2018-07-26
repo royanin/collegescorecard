@@ -6,7 +6,7 @@ This is the codebase of [CollegeScoreCard.io](https://collegescorecard.io/), whi
 
 1. The "requirements.txt" file is embarrassingly long. I plan to fix it later.
 
-2. The official dataset is stored into a MySQL database (or, a SQLite databasae) following some processing steps. [Here](https://github.com/royanin/collegescorecard_db) is the codebase to generate the databases.
+2. The official dataset is stored into two MySQL databases (or, two SQLite databases) following some processing steps. [Here](https://github.com/royanin/collegescorecard_db) is the codebase to generate the databases.
 
 3. I plan to publish the processing steps, once the related jupyter notebooks are clean enough! For now, you can find a short description of the processes and the variables [here](https://collegescorecard.io/explainer).
 
@@ -17,7 +17,7 @@ This is the codebase of [CollegeScoreCard.io](https://collegescorecard.io/), whi
 
 ### Background:
 
-At [collegescorecard.ed.gov](https://collegescorecard.ed.gov/), run by the US Department of Education, we can see how the US higher ed institutions fare on a variety of metrics. For example, one can find quantities such as the median debt of the graduates, the standardized test scores required to get in and so on. The goal of the website is to make it easier for the higher ed stakeholders (e.g., students, parents, teachers, counselors etc.) to have a quantitative understanding of the institutions. This is a fantastic goal, especially so, since the dataset that powers the website is [publicly available!](https://collegescorecard.ed.gov/data/).
+At [collegescorecard.ed.gov](https://collegescorecard.ed.gov/), run by the US Department of Education, we can see how the US higher ed institutions fare on a variety of metrics. For example, one can find quantities such as the median debt of the graduates, the standardized test scores required to get in and so on. The goal of the official scorecard website is to help the higher ed stakeholders (e.g., students, parents, teachers, counselors etc.) make a quantitative understanding of the institutions. This is a fantastic goal, especially so, since the dataset that powers the website is [publicly available!](https://collegescorecard.ed.gov/data/).
 
 While the official CollegeScoreCard website is a good starting point for viewing the dataset, I wanted better ways to analyze and compare different schools, and visualize the results more interactively. Having come across [Dash by Plotly](https://dash.plot.ly/) recently, I decided to build [CollegeScoreCard.io](https://collegescorecard.io/) to incorporate some of these ideas.
 

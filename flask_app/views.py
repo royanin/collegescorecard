@@ -9,7 +9,6 @@ from .emails import notify_server_error, new_message
 @flask_app.route('/twt/<uid>')
 def show_tw(uid):
     w = db.session.query(Wiki_summary).filter_by(uid=uid).first()
-    #print w.TW_HANDL
     if w.TW_HANDL != None:
         return('<a class="twitter-timeline" href="https://twitter.com/'+str(w.TW_HANDL)+'?ref_src=twsrc%5Etfw/">Tweets</a> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>')
     else:
@@ -76,7 +75,6 @@ def contact_form():
     
 @flask_app.route('/explainer')
 def explainer():
-    print 'In explainer'
 
     return render_template("explainer.html")    
 

@@ -668,7 +668,13 @@ layout = html.Div([
                html.Br(),
                html.Br(),
                html.Hr(),   
-               html.P("WARNING: this website is still under construction, and use the information on this website at your own risk.")
+               html.P("WARNING: this website is still under construction, and use the information on this website at your own risk."),
+               html.Div(children=[
+                   html.Span("The website codebase is open-source and is available "),
+                   html.A("here",href="https://github.com/royanin/collegescorecard",target="_blank"),
+                   html.Span(" and "),
+                   html.A("here",href="https://github.com/royanin/collegescorecard_db",target="_blank"),  
+               ]),
            ],className="twelve columns",style={'text-align':'center'})   
          
         ],className='container'),  

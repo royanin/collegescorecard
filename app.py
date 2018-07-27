@@ -30,14 +30,12 @@ app.css.append_css({
 #app.css.append_css({'external_url': 'https://codepen.io/chriddyp/pen/bWLwgP.css'})
 
 css_directory = os.getcwd()
-print 'css_directory',css_directory
 stylesheets = ['plt.css']
 static_css_route = '/flask_app/static/css/'
 
 @flask_app.route('{}<stylesheet>'.format(static_css_route))
 #@app.server.route('{}<stylesheet>'.format(static_css_route))
 def serve_stylesheet(stylesheet):
-    print 'In serve stylesheet function'
     if stylesheet not in stylesheets:
         raise Exception(
             '"{}" is excluded from the allowed static files'.format(

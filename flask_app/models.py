@@ -1,8 +1,11 @@
 from flask_app import flask_app,db
 from datetime import datetime
 
+enable_search = True
+import flask_whooshalchemy as whooshalchemy
 
 class Message(db.Model):
+    #Note the __bind_key__ below --> as this table is going to a different database
     __bind_key__ = 'message'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -39,10 +42,12 @@ class Zip_to_latlong(db.Model):
 class Wiki_summary(db.Model):
 
     __tablename__ = 'wiki_social'
+    __searchable__ = ['wiki_summary']
 
     id = db.Column(db.Integer, index=True, primary_key=True)
     uid = db.Column(db.String(150), index=True, unique=True, nullable=False)
     inst_nm = db.Column(db.String(100))
+    UNITID = db.Column(db.String(10)) 
     OPEID = db.Column(db.String(10))
     wiki_summary = db.Column(db.String(10000))
     date_extracted = db.Column(db.String(10))
@@ -52,9 +57,10 @@ class Wiki_summary(db.Model):
 
     
 
-    def __init__(self, uid, inst_nm, OPEID, wiki_summary, date_extracted, wiki_url, FB_HANDL, TW_HANDL):
+    def __init__(self, uid, inst_nm, UNITID, OPEID, wiki_summary, date_extracted, wiki_url, FB_HANDL, TW_HANDL):
         self.uid = uid
         self.inst_nm = inst_nm
+        self.UNITID = UNITID
         self.OPEID = OPEID        
         self.wiki_summary = wiki_summary
         self.date_extracted = date_extracted
@@ -63,6 +69,7 @@ class Wiki_summary(db.Model):
         self.TW_HANDL = TW_HANDL        
 
 class Nat_avg(db.Model):
+    
     __tablename__ = 'national_average'
     
     id = db.Column(db.Integer, index=True, primary_key=True)
@@ -104,10 +111,12 @@ class Nat_avg(db.Model):
 class School_details(db.Model):
 
     __tablename__ = 'school_details'
-
+    __searchable__ = ['INSTNM']
+    
     id = db.Column(db.Integer, index=True, primary_key=True)
     uid = db.Column(db.String(150), index=True, unique=True)
     INSTNM = db.Column(db.String(100))
+    UNITID = db.Column(db.String(10))
     OPEID = db.Column(db.String(10))
     OPEID6 = db.Column(db.String(10))
     CITY = db.Column(db.String(50))
@@ -125,15 +134,28 @@ class School_details(db.Model):
     CCBASIC = db.Column(db.Integer)
     CCUGPROF = db.Column(db.Integer)
     CCSIZSET = db.Column(db.Integer)
-    SATVRMID = db.Column(db.Float(5))
-    SATMTMID = db.Column(db.Float(5))
-    SATWRMID = db.Column(db.Float(5))
-    ACTCMMID = db.Column(db.Float(5))
-    ACTENMID = db.Column(db.Float(5))
-    ACTMTMID = db.Column(db.Float(5))
-    ACTWRMID = db.Column(db.Float(5), nullable=True)
+    SATVRMID = db.Column(db.Integer)
+    SATMTMID = db.Column(db.Integer)
+    SATWRMID = db.Column(db.Integer)
+    ACTCMMID = db.Column(db.Integer)
+    ACTENMID = db.Column(db.Integer)
+    ACTMTMID = db.Column(db.Integer)
+    ACTWRMID = db.Column(db.Integer)
+    SATVR25 = db.Column(db.Integer)
+    SATVR75 = db.Column(db.Integer)
+    SATMT25 = db.Column(db.Integer)
+    SATMT75 = db.Column(db.Integer)
+    SATWR25 = db.Column(db.Integer)
+    SATWR75 = db.Column(db.Integer)
+    ACTCM25 = db.Column(db.Integer)
+    ACTCM75 = db.Column(db.Integer)
+    ACTEN25 = db.Column(db.Integer)
+    ACTEN75 = db.Column(db.Integer)
+    ACTMT25 = db.Column(db.Integer)
+    ACTMT75 = db.Column(db.Integer)
+    ACTWR25 = db.Column(db.Integer)
+    ACTWR75 = db.Column(db.Integer)
     POP_SUBS = db.Column(db.String(400))
-    #POP_SUBS = db.Column(db.PickleType)
     UGDS = db.Column(db.Float(5))
     TUITIONFEE_IN = db.Column(db.Float(5))
     TUITIONFEE_OUT = db.Column(db.Float(5))
@@ -184,12 +206,15 @@ class School_details(db.Model):
     rankp_ADJ_INEXPFTE = db.Column(db.Float(5))
     rankp_PFTFAC = db.Column(db.Float(5))
     rankp_COMB_RET_RATE = db.Column(db.Float(5))
+    adm_pct = db.Column(db.Float(3))
+    IF_SAT_PRESENT = db.Column(db.Boolean)
+    IF_ACT_PRESENT = db.Column(db.Boolean)
     
     
     
-    def __init__(self,uid, OPEID,OPEID6,INSTNM,CITY,STABBR,ZIP5,PREDDEG,HTTPS_INSTURL,HTTPS_NPCURL,
+    def __init__(self,uid, UNITID, OPEID,OPEID6,INSTNM,CITY,STABBR,ZIP5,PREDDEG,HTTPS_INSTURL,HTTPS_NPCURL,
                  HIGHDEG,CONTROL,REGION,LOCALE,LATITUDE,LONGITUDE,CCBASIC,CCUGPROF,CCSIZSET,SATVRMID,
-                 SATMTMID,SATWRMID,ACTCMMID,ACTENMID,ACTMTMID,ACTWRMID,POP_SUBS,UGDS,
+                 SATMTMID,SATWRMID,ACTCMMID,ACTENMID,ACTMTMID,ACTWRMID,SATVR25, SATVR75, SATMT25, SATMT75, SATWR25, SATWR75, ACTCM25,ACTCM75, ACTEN25,ACTEN75,ACTMT25, ACTMT75,ACTWR25, ACTWR75,POP_SUBS,UGDS,
                  TUITIONFEE_IN,TUITIONFEE_OUT,ADJ_ADM_RATE,OTHER_AFFIL,REL_AFFIL,COUNT_MISSING,
                  VALUE_INDEX,CARE_INDEX,Value_score, Care_score, r_fin_MN_EARN_WNE_P6,r_fin_DEBT_MDN,r_fin_C150_4_COMB,r_fin_COSTT4_COMB,
                  r_fin_WDRAW_ORIG_YR6_RT,r_fin_NPT4_COMB,r_fin_PCTPELL,r_fin_RET_FT4_COMB,r_fin_RET_PT4_COMB,
@@ -199,8 +224,10 @@ class School_details(db.Model):
                  RET_PT4_COMB_PRESENT,ADJ_AVGFACSAL_PRESENT,ADJ_INEXPFTE_PRESENT,PFTFTUG1_EF_PRESENT,
                  PFTFAC_PRESENT,fin_COMB_RET_RATE_PRESENT,rankp_MN_EARN_WNE_P6,rankp_DEBT_MDN,
                  rankp_C150_4_COMB,rankp_COSTT4_COMB,rankp_WDRAW_ORIG_YR6_RT,rankp_NPT4_COMB,rankp_PCTPELL,
-                 rankp_ADJ_AVGFACSAL,rankp_ADJ_INEXPFTE,rankp_PFTFAC,rankp_COMB_RET_RATE):
+                 rankp_ADJ_AVGFACSAL,rankp_ADJ_INEXPFTE,rankp_PFTFAC,rankp_COMB_RET_RATE,adm_pct,IF_SAT_PRESENT,
+                IF_ACT_PRESENT):
         self.uid = uid
+        self.UNITID = UNITID
         self.OPEID = OPEID
         self.OPEID6 = OPEID6
         self.INSTNM = INSTNM
@@ -226,6 +253,20 @@ class School_details(db.Model):
         self.ACTENMID = ACTENMID
         self.ACTMTMID = ACTMTMID
         self.ACTWRMID = ACTWRMID
+        self.SATVR25 = SATVR25 
+        self.SATVR75 = SATVR75 
+        self.SATMT25 = SATMT25
+        self.SATMT75 = SATMT75 
+        self.SATWR25 = SATWR25 
+        self.SATWR75 = SATWR75 
+        self.ACTCM25 = ACTCM25
+        self.ACTCM75 = ACTCM75
+        self.ACTEN25 = ACTEN25
+        self.ACTEN75 = ACTEN75
+        self.ACTMT25 = ACTMT25
+        self.ACTMT75 = ACTMT75
+        self.ACTWR25 = ACTWR25
+        self.ACTWR75 = ACTWR75
         self.POP_SUBS = POP_SUBS
         self.UGDS = UGDS
         self.TUITIONFEE_IN = TUITIONFEE_IN
@@ -276,5 +317,11 @@ class School_details(db.Model):
         self.rankp_ADJ_AVGFACSAL = rankp_ADJ_AVGFACSAL
         self.rankp_ADJ_INEXPFTE = rankp_ADJ_INEXPFTE
         self.rankp_PFTFAC = rankp_PFTFAC
-        self.rankp_COMB_RET_RATE = rankp_COMB_RET_RATE       
+        self.rankp_COMB_RET_RATE = rankp_COMB_RET_RATE  
+        self.adm_pct = adm_pct
+        self.IF_SAT_PRESENT = IF_SAT_PRESENT
+        self.IF_ACT_PRESENT = IF_ACT_PRESENT
 
+if enable_search:
+    whooshalchemy.whoosh_index(flask_app, School_details)
+    whooshalchemy.whoosh_index(flask_app, Wiki_summary)

@@ -1,0 +1,8 @@
+    <!-- <div class="container"> -->
+    <div> 
+        {% if TW_ALT != None %}
+            <a class="twitter-timeline" data-width="350" data-height="450" href="https://twitter.com/{{TW_ALT}}?ref_src=twsrc%5Etfw">Tweets</a> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+        {% else %}
+        <h4>Sorry, we can't find the twitter feed...</h4>
+        {% endif %}
+    </div>

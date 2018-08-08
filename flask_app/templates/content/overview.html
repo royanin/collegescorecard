@@ -1,0 +1,19 @@
+    <!-- <div class="container">
+    <div>-->
+  <div class="card-body">
+      <h6 class="card-title">
+          <abbr>Value score:<span>Socred out of 100, this is a composite metric representing the percentile rank of the school wrt other schools, taking into account factors such as the  admission rate, cost to study, salary, debt etc. </span></abbr> {{ sch.Value_score }}<br>
+          
+          <abbr>Care score:<span>Socred out of 100, this is a composite metric representing the percentile rank of the school wrt other schools, taking into account factors such as the graduation rate, dropout rate, percentage of students receiving Pell grants etc.</span></abbr> {{ sch.Care_score }}</h6>
+      <p><a href="/explainer" target="_blank">More on value score and care score</a></p>
+    <p class="card-text">  
+        <b>Location: </b> {{ sch.CITY }}, {{ sch.STABBR }}, {{ sch.ZIP5 }}<br>
+        {# <b>Undergrad population: </b> {{ sch.UGDS }}<br>        #}
+        <br>        
+        <b>Religious affiliation: </b> {{ sch.REL_AFFIL }}<br>
+        <b>Other affiliation(s): </b> {{ sch.OTHER_AFFIL }}<br>        
+      </p>
+    <a href="{{ sch.HTTPS_INSTURL }}" target="_blank" class="card-link">School website</a>
+    <a href="{{ sch.HTTPS_NPCURL }}" target="_blank" class="card-link">Net price calculator</a>    
+            
+</div>

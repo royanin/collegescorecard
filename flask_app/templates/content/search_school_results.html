@@ -1,0 +1,29 @@
+
+<div>
+    {% if results_count > 1 %} 
+      <h4>Search results for <code>{{ query }}</code>:</h4>      
+    {% elif results_count == 0 %}
+      <h4>Sorry, no results found for <code>{{ query }}</code></h4>
+    {% endif %}
+      
+    {% if results_count > 1 %}
+      <div>
+          <ul>
+              {% for item in results %}
+              <li>
+                  <a href="profile/{{ item.uid }}">
+                      {% if result_type == 'school_table' %}
+                        {{ item.INSTNM }}
+                      {% elif result_type == 'wiki_table' %}                      
+                        {{ item.inst_nm }}
+                      {% endif %}
+                  </a>
+              </li>
+              {% endfor %}
+          </ul>
+
+      </div>
+      {% endif %}
+  </div>
+
+  <br><br><br><br>

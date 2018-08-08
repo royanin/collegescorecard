@@ -1,0 +1,17 @@
+    <div>
+        <h5>Summary from Wikipedia</h5>
+        <br>
+        <blockquote class="blockquote"> 
+        <div>
+    {% if wiki_social.uid != None %}
+        {{ wiki_social.wiki_summary|safe }}
+        <br>
+            <hr>
+            This summary uses material from the Wikipedia article
+         available at <a href="https://en.wikipedia.org/wiki/{{ wiki_social.wiki_url }}" target="_blank">https://en.wikipedia.org/wiki/{{ wiki_social.wiki_url }}</a>, which is released under the <a href="https://creativecommons.org/licenses/by-sa/3.0/">Creative Commons Attribution-Share-Alike License 3.0</a>. This summary was extracted on  {{ wiki_social.date_extracted }}, and the content on Wikipedia may have changed during this time.
+    {% else %}
+        <p>No entries found.</p>
+    {% endif %}
+            </div>
+        </blockquote>
+    </div>

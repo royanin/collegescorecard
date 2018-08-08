@@ -1,0 +1,40 @@
+    <!-- <div class="container"> -->
+<div class="row">
+    <div class="col-lg-4">
+<h6>What are the popular majors / subjects of study at {{ sch.INSTNM }}?</h6>
+{% if num_pop_subs >= 1 and xlabels[0]!="Other subjects" %} 
+<div>
+    <p>At {{ sch.INSTNM}}, most graduating students study {{ xlabels[0] }},
+    {% for i in range (1, num_pop_subs) %}
+    {% if xlabels[i] != "Other subjects" %}
+    {{ xlabels[i] }},
+    {% endif %}
+    {% endfor %}
+        &nbsp;and other subjects.</p>
+</div>
+{% endif %}
+    </div>
+    <div  class="col-lg-8">        
+    {% if sch.uid != None %}
+        <!-- <h4>{{ sch.INSTNM }}</h4> -->
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Subject(s)</th>  
+                <th>Percentage</th>
+              </tr>
+            </thead>
+            <tbody>
+                {% for i in range (0, num_pop_subs) %}
+              <tr>
+                  <p><td>{{ xlabels[i] }}</td><td>{{ ylabels[i] }}</td></p>
+                </tr> 
+                {% endfor %}
+            </tbody>
+          </table>            
+        <br>
+        <br>
+        {% endif %}
+    </div>
+    
+</div>

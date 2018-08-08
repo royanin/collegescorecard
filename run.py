@@ -9,7 +9,8 @@ import json
 from flask_sqlalchemy import SQLAlchemy
 
 from app import app
-from dash_app import app_table
+from dash_app import app_table#, search
+from flask_app import views
 
 print(dcc.__version__) # 0.6.0 or above is required
 
@@ -36,9 +37,8 @@ def display_page(pathname):
     
     if pathname == '/':
         return app_table.layout
-
     else:
-        return '404'
+        return '404'    
 
     # You could also return a 404 "URL not found" page here
 

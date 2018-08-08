@@ -1,0 +1,15 @@
+{% extends "html_header.html" %}
+{% block meta %}Find out stats for schools: Average cost, graduation rate, salary after graduation, admission rate, and so on
+{% endblock %}
+{% block title %}Search a lot of colleges and universities{% endblock %}
+{% block head %}
+  {{ super() }}
+{% endblock %}
+{% block content %}
+<div class="container">   
+    {% include "content/search_school_form.html" %}
+<section>
+    <a href="/"><i class="fa fa-home" aria-hidden="true"></i> HOME&nbsp;&nbsp;&nbsp;</a>>>&nbsp;&nbsp;&nbsp;<a href="/search"><i class="fa fa-search" aria-hidden="true"></i> SEARCH&nbsp;/&nbsp;PROFILE</a>
+</section>
+</div>    
+{% endblock %}

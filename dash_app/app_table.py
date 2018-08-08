@@ -7,11 +7,11 @@ import plotly.graph_objs as go
 import pandas as pd
 import numpy as np
 import json,ast, shelve, re
-from config import set23_rand,col_list, col_list2, tr_dict, subj_dict, \
+from config import set23_rand,col_list, col_list2, tr_dict, \
     dist_cal, state_list, region_dict,loc_type_dict, acad_type_dict, table_col_list, table_col_dict, contact_options_dict, msg_len_max,pct_rank_qnty_dict, available_indicators,table_col_present_dict,MAX_RESULTS #,set23,nat_set234_mean
-from utils import haversine_np
-from flask_app import flask_app, db
+from flask_app import flask_app, db, subj_dict
 from flask_app.models import Nat_avg, School_details, Zip_to_latlong, Wiki_summary, Message #Email
+from flask_app.utils import haversine_np, order_pop_subs
 import base64
 from operator import itemgetter
 from sqlalchemy.sql import text
@@ -62,6 +62,8 @@ layout = html.Div([
             html.Div(id='show_filter_button',children=[
                 html.Button('SHOW FILTERS', id='button-toggle-filter',
                            className="btn btn-md btn-default"),
+                html.P('OR'),
+                html.Button(children=[html.A("SEARCH FOR A SCHOOL",href="/search")],className="btn btn-md btn-default"),                
             ]),
         ], #className="col-md-10 col-md-offset-left-1" ),
             className="twelve columns",style={'text-align':'center'} ),
@@ -352,7 +354,7 @@ layout = html.Div([
                                className="btn btn-md btn-default"),
                     html.Button('SUBMIT', id='button-submit-filter',
                                 className="btn btn-md btn-primary",style={'background-color':
-                                                                         cc7}),
+                                                                         cc7}),                
                     #html.Div(id='show_filter_selection', children=[]),                
 
             ], style={'text-align':'center'}#className="col-lg-2 col-lg-offset-left-5 col-md-2 col-md-offset-left-5" )
@@ -641,7 +643,7 @@ layout = html.Div([
     #---------------------------------
     #contact form + social share embed
     #        
-    html.Div([
+    html.Div(id='contact_us',children=[
             html.H6("Say hello to CollegeScoreCard.io",style={'text-align':'center'}),
             html.Iframe(src="/contact_us",
             style={'border': 'none', 'width': '100%', 'height': 540}
@@ -1155,18 +1157,11 @@ Output('subj_bar', 'figure'),
 def update_subject_bar(inst1):
     
     sel_inst = json.loads(json.loads(inst1))
-
-    pop_subj_pc = ast.literal_eval(sel_inst['POP_SUBS'])
+    #Get the ordered list from flask_app.utils
+    
+    xlabels,ylabels = order_pop_subs(sel_inst['POP_SUBS'])
     
     hoverinfo = 'label+percent'
-
-    k,v = zip(*pop_subj_pc.iteritems())
-
-    subj_list = [list(x) for x in zip( *sorted(zip(k,v),  key=itemgetter(1), reverse=True) )]
-
-    xlabels = [ subj_dict[i][0] for i in subj_list[0] ]
-    ylabels = [ 100.0*subj_list[1][i] for i in range(len(subj_list[0])) ]    
-
     title1 = "Popular subjects"
 
     data = [go.Bar(x=xlabels,y=ylabels,
@@ -1191,8 +1186,6 @@ def update_wiki(inst1):
     if inst1 is not None:
         sel_inst = json.loads(json.loads(inst1))
         return  html.Div([
-                html.H6('Summary from Wikipedia'),
-                html.Br(),
                 html.Iframe(src="/wiki_summary/"+str(sel_inst['uid']),
                            style={'border': 'none', 'width': '95%', 'height': 415}
                            ),
@@ -1234,6 +1227,7 @@ def update_tw(inst1):
     if inst1 is not None:
         sel_inst = json.loads(json.loads(inst1))
         if str(sel_inst['uid']) is not None:  
+            print 'uid: ',sel_inst['uid']
             return  html.Div([
                     html.Iframe(src="/twt/{}".format(str(sel_inst['uid'])),
                                 style={'border': 'none', 'width': '100%', 'height': 500}

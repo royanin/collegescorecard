@@ -1,0 +1,15 @@
+    <!-- <div class="container"> -->
+<h6>Getting into {{ sch.INSTNM }}</h6>
+<div>
+    <p>
+    {% if sch.adm_pct == 100.0 %}
+       {{ sch.INSTNM}} has an open admission policy.
+    {% else %}
+        {{ sch.adm_pct }} of applicants get into {{sch.INSTNM}}. 
+        {% if SAT_PRESENT == 1 or ACT_PRESENT == 1 %}
+        Please refer to the Admissions Overview panel for the available median SAT and/or ACT scores for {{sch.INSTNM}}.
+        {% endif %}
+    {% endif %}
+    </p>
+</div>
+

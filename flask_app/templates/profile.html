@@ -1,0 +1,91 @@
+{% extends "html_header.html" %}
+{% if sch != None %}
+    {% block meta %}Find out stats for {{ sch.INSTNM }}: Average cost, graduation rate, admission rate, and so on
+    {% endblock %}
+    {% block title %}{{ sch.INSTNM }}{% endblock %}
+{% endif %}
+{% block head %}
+  {{ super() }}
+{% endblock %}
+{% block content %}
+<div class="container">   
+
+    <div>
+    {% include "content/search_school_form.html" %}
+    </div>
+    <section>
+        <a href="/"><i class="fa fa-home" aria-hidden="true"></i> HOME&nbsp;&nbsp;&nbsp;</a>>>&nbsp;&nbsp;&nbsp;<a href="/search"><i class="fa fa-search" aria-hidden="true"></i> SEARCH&nbsp;/&nbsp;PROFILE&nbsp;&nbsp;</a> >>&nbsp;&nbsp;&nbsp; {{sch.INSTNM}}
+    </section>
+    <hr>
+    <br>
+    <h4>{{ sch.INSTNM }}</h4> 
+    <section>
+    
+    <div class="card-columns">    
+    <div class="card">    
+        {% include "content/overview.html" %} 
+    </div>
+    <div class="card">    
+        {% include "content/embed_map.html" %}       
+    </div>
+    </div>
+    </section>
+    <div class="row">
+        <div class="col-lg-6 col-xl-6">            
+        <div class="card">        
+            {% include "content/overview2.html" %}
+        </div>
+        </div>
+        <div class="col-lg-6 col-xl-6">            
+            {% include "content/admissions_content.html" %}                        
+        </div>
+    </div>
+    <br>   
+    {% include "content/pop_subs.html" %}             
+    <br>    
+    <div class="row">      
+    <div class="col-lg-6 col-xl-6">    
+        {% include "content/qna.html" %}
+        </div>
+        <div class="col-lg-6 col-xl-6"> 
+            <h6>Numbers at a glance</h6>
+        {% include "content/numbers_table.html" %}
+        </div>
+    </div>
+    
+    {% if wiki_social.wiki_summary !="<p>Not available.</p>" %}
+        {% include "content/content_wiki.html" %}
+    {% endif %}
+    <br><br>
+
+
+    <div class="row">        
+    <div class="col-lg-6 col-xl-6">    
+        {% include "content/embed_yt.html" %}        
+    </div>
+    <div class="col-xs-12 col-sm-6 col-lg-3 col-xl-3">    
+    {% if wiki_social.FB_HANDL != "" %}
+        {% include "content/embed_fb.html" %}
+    {% endif %}
+        </div>
+    <div class="col-xs-12 col-sm-6 col-lg-3 col-xl-3">            
+    {% if TW_ALT != "" %}
+        {% include "content/embed_tw.html" %}        
+    {% endif %}
+        </div>
+    </div>
+    
+    <br><br>
+    
+    <hr>
+    <a name="contact_csc"></a>
+    {% include "content/contact_form.html" %}
+    
+    <br>
+    <hr>
+    <div>
+            {% include "content/form_share_social_content.html" %}
+    </div>
+<br><br><br>
+</div>
+{% endblock %}

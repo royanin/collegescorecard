@@ -1,0 +1,77 @@
+<div>
+{% autoescape false %}
+
+<a href="#cost" data-toggle="collapse"><h6>1. How much does it cost to go to {{sch.INSTNM}}?</h6></a>
+<div id="cost" class="collapse indent">
+    <div>
+        <p>
+        {#Mention sticker price, tuition -- in-state and out-of-state, net price. Median debt.#}
+        {% if sch.COSTT4_COMB_PRESENT==1 %}
+        The total cost (tuition and other expenses, including the cost of living expenses) at {{sch.INSTNM}} is {{sch.r_fin_COSTT4_COMB}}$/year. This is the sticker price, and very few students pay the full cost.
+            {% if sch.NPT4_COMB_PRESENT %}
+             After taking into account all the scholarships, the average "net price" for each student comes down to {{sch.r_fin_NPT4_COMB}}$/year. 
+            {% else %}
+            While we don't have the numbers available for the net price, the average net price for similar schools* is {{nat_mean.NPT4_COMB}}$/year.
+            {% endif %}
+        {% else %}
+        We don't know the sticker price (tuition and other expenses, including the cost of living expenses) at {{sch.INSTNM}}. However, the sticker price at similar schools* per year is {{nat_mean.COSTT4_COMB}}$.
+            {% if sch.NPT4_COMB_PRESENT %}
+            We do have the average "net price" for each student: after taking into account all the scholarships, it is {{sch.r_fin_NPT4_COMB}}$/year. 
+            {% else %}
+            Unfortunately, we don't know the average "net price" for {{sch.INSTNM}} either. However, it might help to know that the average net price for similar schools* is {{nat_mean.NPT4_COMB}}$/year.
+            {% endif %}
+        {% endif %}
+        </p>
+        <p>
+         Calculate your estimated cost at {{sch.INSTNM}} using <a href="{{sch.HTTPS_NPCURL}}" target="_blank">the official net-price calculator</a> for your specific circumstances.
+        </p>
+        <p>
+            {% if sch.TUITIONFEE_IN != None and sch.TUITIONFEE_OUT != None %}
+                {% if sch.TUITIONFEE_IN != sch.TUITIONFEE_OUT %}
+                The sticker price and the net price estimated here are for students paying the in-state tuition fee. The tuition fee for the out-of-state students is {{sch.TUITIONFEE_OUT}}$/year, compared to {{sch.TUITIONFEE_IN}}$/year for the in-state students. For the out-of-state students, the sticker price quoted above is higher by {{ sch.TUITIONFEE_OUT - sch.TUITIONFEE_IN }}$/year.
+                {% endif %}
+            {% endif %}
+        </p>
+    </div>
+    <br>
+</div>
+
+<a href="#salary" data-toggle="collapse"><h6>2. How much do {{sch.INSTNM}} graduates earn?</h6></a>
+<div id="salary" class="collapse indent">
+    <div>
+        <p>
+           {% if sch.MN_EARN_WNE_P6_PRESENT==1 %}
+            The average salary 6 years since enrollment at {{sch.INSTNM}} is {{sch.r_fin_MN_EARN_WNE_P6}}$/year. This number doesn't count those who may still be enrolled (e.g., in graduate school). Compare this number with the national average of similar schools: {{nat_mean.MN_EARN_WNE_P6}}$/year.
+            {% else %}
+             We don't have that salary data available for {{sch.INSTNM}}. The national average for similar schools is {{nat_mean.MN_EARN_WNE_P6}}$/year.
+           {% endif %}
+        </p>
+    </div>
+    <br>
+</div>
+<a href="#grad_rate" data-toggle="collapse"><h6>3. What are the graduation rate and the withdrawal rate at {{sch.INSTNM}}?</h6></a>
+<div id="grad_rate" class="collapse indent">
+    <div>
+        <p>
+            {% if sch.C150_4_COMB_PRESENT==1 %}
+            The graduation rate at {{sch.INSTNM}} is {{sch.r_fin_C150_4_COMB}}%. This is the percentage of students who graduate within 1.5 times of the degree completion time, meaning 6 years for a 4-year bachelors degree, and 3 years for a 2-year associate degree. For comparison, the national average graduation rate is {{nat_mean.C150_4_COMB}}% for similar schools*.
+            {% else %}
+            The graduation rate at {{sch.INSTNM}} is unavailable. The national average of graduation rate for similar*  schools is {{nat_mean.C150_4_COMB}}%.
+            {% endif %}
+        </p>
+        <p>
+            {% if sch.WDRAW_ORIG_YR6_RT_PRESENT==1 %}
+            The dropout rate at {{sch.INSTNM}} is {{sch.r_fin_WDRAW_ORIG_YR6_RT}}%. Compare this number with the national average ({{nat_mean.WDRAW_ORIG_YR6_RT}}%) among similar schools*.
+            {% else %}
+            While we don't have the numbers for the dropout rate at {{sch.INSTNM}}, it might be useful to know that that the national average of this number for similar schools* is {{nat_mean.WDRAW_ORIG_YR6_RT}}%.
+            {% endif %}
+        </p>
+    </div>
+    <br>
+</div>    
+<br>
+    
+<hr>
+    <p>*as defined by their Carnegie classification </p>
+{% endautoescape %}    
+</div>

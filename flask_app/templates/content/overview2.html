@@ -1,0 +1,49 @@
+    <!-- <div class="container">
+    <div>-->
+  <div class="card-body">
+    <h5 class="card-title">Admissions Overview</h5>   
+    <p class="card-text">
+        {% if adm_pct == 100.0 %}
+            <b>Acceptance rate: </b> Open admission<br>
+        {% else %}
+            <b>Acceptance rate: </b> {{ adm_pct }}%<br>
+        {% endif %}
+        
+        {% if sch.IF_SAT_PRESENT == True %}
+        <b>SAT (median) -- </b>
+            {% if sch.SATVRMID != None %}
+            <b>Verbal:</b> {{ sch.SATVRMID }}&nbsp;&nbsp;        
+            {% endif %}
+            {% if sch.SATMTMID != None %}
+            <b>Math:</b> {{ sch.SATMTMID }}&nbsp;&nbsp;        
+            {% endif %}
+            {% if sch.SATWRMID != None %}
+            <b>Writing:</b> {{ sch.SATWRMID }}
+            {% endif %}  
+        <br>
+        {% endif %}
+        {% if sch.IF_ACT_PRESENT == True %}
+        <b>ACT (median) -- </b>
+            {% if sch.ACTCMMID != None %}
+            <b>Cumulative:</b> {{ sch.ACTCMMID }}&nbsp;&nbsp;        
+            {% endif %}
+            {% if sch.ACTENMID != None %}
+            <b>English:</b> {{ sch.ACTENMID }}&nbsp;&nbsp;        
+            {% endif %}        
+            {% if sch.ACTMTMID != None %}
+            <b>Math:</b> {{ sch.ACTMTMID }}&nbsp;&nbsp;        
+            {% endif %}
+            {% if sch.ACTWRMID != None %}
+            <b>Writing:</b> {{ sch.ACTWRMID }}
+            {% endif %}        
+        <br>
+        {% endif %}        
+        
+      </p>
+      {#
+      <p class="card-footer">  
+          * Value score and Care score: Please see below in numbers at a glance for an explanation.
+      </p>
+      #}
+  
+</div>

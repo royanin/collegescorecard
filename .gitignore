@@ -1,4 +1,7 @@
 *.pyc
 *.pyo
 data
+app.db
+app_data.db
+whoosh_index
 instances.py

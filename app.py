@@ -20,6 +20,8 @@ app = Dash('app', server=flask_app, url_base_pathname='/',
             {"name": "viewport", "content": "width=device-width, initial-scale=1"}
 ]
 )
+
+
 #app = Dash('app', server=flask_app, url_base_pathname='/',)
 app.title = "CollegeScoreCard.io"
 app.index_string = '''

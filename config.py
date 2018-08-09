@@ -47,7 +47,6 @@ WARN_LEVEL = 20.0   #this means that particular number in that school is in the 
 #Maximum number of schools to show in whoosh search
 MAX_SEARCH_RESULTS = 15
 
-
 #website name
 WSNAME = ENV_VAR['WS_NAME']
 CONTACT_RSN_LIST = ['High school student -- searching for college','Parent -- gathering college info for child','Looking to go back to school','Career counselor gathering information','K-12 administrator','College administrator',    'Data analysis/visualization enthusiast','Other']

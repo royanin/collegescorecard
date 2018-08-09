@@ -1,10 +1,11 @@
-from flask import render_template, flash, redirect, session, url_for, request, g, json, jsonify, send_from_directory
+from flask import render_template, flash, redirect, session, url_for, request, g, json, jsonify, send_from_directory, make_response
 from flask_app import flask_app, db, WARN_LEVEL, MAX_SEARCH_RESULTS, subj_dict
 from models import Wiki_summary, Nat_avg, School_details, Message
 import flask_whooshalchemy as whooshalchemy
 from .forms import ContactForm
 from .emails import notify_server_error, new_message
 from .utils import order_pop_subs
+from datetime import datetime, timedelta
 
 
 @flask_app.route('/twt/<uid>')
@@ -74,7 +75,7 @@ def contact_form():
         return render_template("contact_form.html")
     
     
-@flask_app.route('/explainer')
+@flask_app.route('/explainer',methods=['GET'])
 def explainer():
 
     return render_template("explainer.html")   
@@ -147,25 +148,20 @@ def school_profile(uid):
 
         else:
             return ("No entries found.") 
+
+
 @flask_app.route('/profile', methods=['GET'])
 @flask_app.route('/profile/', methods=['GET'])
-@flask_app.route('/search', methods=['GET'])
+@flask_app.route('/search', methods=['GET','POST'])
 def search():
-    print "Show search page"
-    return render_template('search.html')        
-
-
-@flask_app.route('/search_school', methods=['GET','POST'])
-def search_form():
     if request.method == "GET": 
-        return redirect(url_for('search'))
+        return render_template('search.html') 
 
     #g.search_form = SearchForm()
     elif request.method == "POST":
         print 'POST request'
         query = request.form.get('autocomplete')
         print query
-        #print request.form.get('search-post-data')
 
 
     
@@ -214,11 +210,41 @@ def search_form():
                                result_type = result_type,
                                results_count = results_count)
                                #search_message=None)
+    
+    
+# a route for generating sitemap.xml
+@flask_app.route('/sitemap.xml', methods=['GET'])
+def sitemap():
+    """Generate sitemap.xml. Makes a list of urls and date modified."""
+    pages=[]
+    pages_temp = []
+    ws_url_string = "https://collegescorecard.io"
+    ten_days_ago=(datetime.now() - timedelta(days=10)).date().isoformat()
+    # static pages
+    for rule in flask_app.url_map.iter_rules():
+        if "GET" in rule.methods and len(rule.arguments)==0:
+            pages_temp.append(
+                [rule.rule,ten_days_ago]
+            )
 
+    for item in pages_temp:
+        #if item[0] == '/_dash-dependencies':
+        if item[0] in ['/_dash-dependencies','/_dash-layout','/_dash-routes','/profile/','/profile','/social/']:
+            pass
+        else:
+            pages.append(item)
+    
+    print pages
+    # school model pages
+    sch_list = db.session.query(School_details).all()
+    for sch in sch_list:
+        url=url_for('school_profile',uid=sch.uid)
+        #modified_time=sch.modified_time.date().isoformat()
+        modified_time=ten_days_ago
+        pages.append([url,modified_time]) 
 
-
-    #and len(results_wiki) == 0:
-        
-    #Search the database to find the likes for INSTNM, get the first one, find the uid
-    #Make the call below a return redirect to /profile with the uid param
-    #return ('', 204)
+    sitemap_xml = render_template('sitemap_template.xml', pages=pages, ws_url_string=ws_url_string)
+    response= make_response(sitemap_xml)
+    response.headers["Content-Type"] = "application/xml"    
+    
+    return response

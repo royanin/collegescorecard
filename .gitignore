@@ -3,5 +3,6 @@
 data
 app.db
 app_data.db
+sitemap.xml
 whoosh_index
 instances.py

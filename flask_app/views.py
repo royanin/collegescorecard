@@ -2,6 +2,7 @@ from flask import render_template, flash, redirect, session, url_for, request, g
 from flask_app import flask_app, db, WARN_LEVEL, MAX_SEARCH_RESULTS, subj_dict
 from models import Wiki_summary, Nat_avg, School_details, Message
 import flask_whooshalchemy as whooshalchemy
+from sqlalchemy import and_
 from .forms import ContactForm
 from .emails import notify_server_error, new_message
 from .utils import order_pop_subs
@@ -131,7 +132,22 @@ def school_profile(uid):
             else:
                 print wiki_social.TW_HANDL
                 TW_ALT = ""
-
+                
+            #Find similar featured schools (Care score and value score within +/-3%)
+            feat_sch =db.session.query(School_details).filter(and_(School_details.Value_score>0.97*sch.Value_score,
+                                                        School_details.Value_score<1.03*sch.Value_score,           School_details.Care_score>0.97*sch.Care_score,
+                                                        School_details.Care_score<1.03*sch.Care_score)).all()
+            if len(feat_sch) > 1:
+                feat_list = []
+                for feat in feat_sch:
+                    #print feat.INSTNM, feat.uid, feat.Value_score, feat.Care_score
+                    if feat.uid != sch.uid:
+                        feat_list.append([feat.INSTNM, feat.uid, feat.Value_score, feat.Care_score])
+                        if len(feat_list) == 6:
+                            break
+            else:
+                feat_list = None
+            #print feat_list
             return render_template("profile.html",
                                    sch=sch,
                                    wiki_social=wiki_social,
@@ -144,7 +160,8 @@ def school_profile(uid):
                                    adm_pct = adm_pct,
                                    SAT_PRESENT = SAT_PRESENT,
                                    ACT_PRESENT = ACT_PRESENT,
-                                   TW_ALT=TW_ALT)
+                                   TW_ALT=TW_ALT,
+                                   feat_list=feat_list)
 
         else:
             return ("No entries found.") 

@@ -57,8 +57,23 @@
         {% include "content/content_wiki.html" %}
     {% endif %}
     <br><br>
+    <section>
+        <h6>Randomly selected schools with similar Value and Care scores</h6>
+    <div class="row">
+    {% for item in feat_list %}
+        <div class="col-xs-6 col-sm-4 col-lg-3 col-xl-2">
+            <a href="/profile/{{item[1]}}">
+        <div class="card">    
+            {% include "content/featured_school.html" %} 
+        </div></a>
+        </div>
+    {% endfor %}
+    </div>
+    </section>
+    <br><br>
 
-
+    <section>
+        <h6>{{sch.INSTNM}} on social media</h6>
     <div class="row">        
     <div class="col-lg-6 col-xl-6">    
         {% include "content/embed_yt.html" %}        
@@ -74,13 +89,17 @@
     {% endif %}
         </div>
     </div>
-    
+    </section>
     <br><br>
     
     <hr>
+    <section>
+        <div class="text-center">
+        <h6>Say hi to CollegeScoreCard.io</h6>
+        </div>
     <a name="contact_csc"></a>
     {% include "content/contact_form.html" %}
-    
+    </section>
     <br>
     <hr>
     <div>

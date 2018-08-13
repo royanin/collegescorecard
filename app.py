@@ -17,7 +17,8 @@ app = Dash('app', server=flask_app, url_base_pathname='/',
             {"name": "description",
             "content": 'US has thousands of colleges and universities. At CollegeScoreCard.io you can find out more on their cost, graduation rate, average debt incurred by students, admission rate, and so on. Built on official DoE data. Easier to compare and make sense.'},
             {"http-equiv": "X-UA-Compatible", "content": "IE=edge"},
-            {"name": "viewport", "content": "width=device-width, initial-scale=1"}
+            {"name": "viewport", "content": "width=device-width, initial-scale=1"},
+            {"property": "og:image", "content":"/assets/csc_to_img.jpg"}
 ]
 )
 

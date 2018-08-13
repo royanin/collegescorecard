@@ -2,10 +2,9 @@ from flask import render_template, flash, redirect, session, url_for, request, g
 from flask_app import flask_app, db, WARN_LEVEL, MAX_SEARCH_RESULTS, subj_dict
 from models import Wiki_summary, Nat_avg, School_details, Message
 import flask_whooshalchemy as whooshalchemy
-from sqlalchemy import and_
 from .forms import ContactForm
 from .emails import notify_server_error, new_message
-from .utils import order_pop_subs
+from .utils import order_pop_subs, suggest_featured_schools
 from datetime import datetime, timedelta
 
 
@@ -85,7 +84,6 @@ def explainer():
 @flask_app.route('/profile/<uid>', methods=['GET', 'POST'])
 def school_profile(uid):
     g.contact_form = ContactForm()
-    print 'in views school_profile', uid
     if uid == None:
         print 'profile inst. is missing..'
         return redirect("/")
@@ -133,21 +131,9 @@ def school_profile(uid):
                 print wiki_social.TW_HANDL
                 TW_ALT = ""
                 
-            #Find similar featured schools (Care score and value score within +/-3%)
-            feat_sch =db.session.query(School_details).filter(and_(School_details.Value_score>0.97*sch.Value_score,
-                                                        School_details.Value_score<1.03*sch.Value_score,           School_details.Care_score>0.97*sch.Care_score,
-                                                        School_details.Care_score<1.03*sch.Care_score)).all()
-            if len(feat_sch) > 1:
-                feat_list = []
-                for feat in feat_sch:
-                    #print feat.INSTNM, feat.uid, feat.Value_score, feat.Care_score
-                    if feat.uid != sch.uid:
-                        feat_list.append([feat.INSTNM, feat.uid, feat.Value_score, feat.Care_score])
-                        if len(feat_list) == 6:
-                            break
-            else:
-                feat_list = None
-            #print feat_list
+            #Find similar featured schools (Care score and value score within +/-3 )
+            feat_list = suggest_featured_schools(sch.Value_score,sch.Care_score,uid=sch.uid)
+
             return render_template("profile.html",
                                    sch=sch,
                                    wiki_social=wiki_social,
@@ -171,8 +157,12 @@ def school_profile(uid):
 @flask_app.route('/profile/', methods=['GET'])
 @flask_app.route('/search', methods=['GET','POST'])
 def search():
-    if request.method == "GET": 
-        return render_template('search.html') 
+    if request.method == "GET":
+        feat_list1 = suggest_featured_schools(90,90,uid=None)
+        feat_list2 = suggest_featured_schools(70,70,uid=None)        
+        return render_template('search.html',
+                               feat_list1=feat_list1,
+                               feat_list2=feat_list2) 
 
     #g.search_form = SearchForm()
     elif request.method == "POST":

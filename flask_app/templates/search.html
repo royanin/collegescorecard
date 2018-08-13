@@ -11,5 +11,38 @@
 <section>
     <a href="/"><i class="fa fa-home" aria-hidden="true"></i> HOME&nbsp;&nbsp;&nbsp;</a>>>&nbsp;&nbsp;&nbsp;<a href="/search"><i class="fa fa-search" aria-hidden="true"></i> SEARCH&nbsp;/&nbsp;PROFILE</a>
 </section>
+    <hr><br><br>
+    {% if feat_list1 != None %}    
+    <section>
+        <h6>Randomly selected featured schools</h6><br>
+    <div class="row">
+        {% for item in feat_list1 %}
+            <div class="col-xs-6 col-sm-4 col-lg-3 col-xl-2">
+                <a href="/profile/{{item[1]}}">
+            <div class="card">    
+                {% include "content/featured_school.html" %} 
+            </div></a>
+            </div>
+        {% endfor %}
+    </div>
+    </section>
+    {% endif %}    
+    <br><br>
+    {% if feat_list2 != None %}    
+    <section>
+    <div class="row">
+        {% for item in feat_list2 %}
+            <div class="col-xs-6 col-sm-4 col-lg-3 col-xl-2">
+                <a href="/profile/{{item[1]}}">
+            <div class="card">    
+                {% include "content/featured_school.html" %} 
+            </div></a>
+            </div>
+        {% endfor %}
+    </div>
+    </section>
+    {% endif %}    
+    
+    
 </div>    
 {% endblock %}

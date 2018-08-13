@@ -1,8 +1,11 @@
 import numpy as np
 import pandas as pd
-import ast
+import ast, random
 from operator import itemgetter
 from config import subj_dict
+from flask_app import db
+from sqlalchemy import and_
+from models import School_details
 
 
 def haversine_np(lat1, lon1, lat2, lon2):
@@ -38,3 +41,31 @@ def order_pop_subs(POP_SUBS):
     ylabels = [ round(100.0*subj_list[1][i],1) for i in range(len(subj_list[0])) ]
 
     return (xlabels,ylabels)
+
+
+def suggest_featured_schools(v_score, c_score,uid=None):
+           #Find similar featured schools (Care score and value score within +/-3%)
+            feat_sch_ =db.session.query(School_details).filter(and_(School_details.Value_score>(v_score-3.0),
+                                                        School_details.Value_score<(v_score+3.0),           School_details.Care_score>(c_score-3.0),
+                                                        School_details.Care_score<(c_score+3.0))).all()
+
+            #randomize the list of schools so we are not stuck with the same options every time
+            feat_sch = random.sample(feat_sch_, len(feat_sch_))                                             
+            
+            if len(feat_sch) > 1:
+                feat_list = []
+                for feat in feat_sch:
+                    #print feat.INSTNM, feat.uid, feat.Value_score, feat.Care_score
+                    if uid != None:                    
+                        if feat.uid != uid:
+                            feat_list.append([feat.INSTNM, feat.uid, feat.Value_score, feat.Care_score])
+                    else:
+                        feat_list.append([feat.INSTNM, feat.uid, feat.Value_score, feat.Care_score])                        
+                    if len(feat_list) == 6:
+                        break
+                        
+            else:
+                feat_list = None
+            #print feat_list
+            
+            return feat_list

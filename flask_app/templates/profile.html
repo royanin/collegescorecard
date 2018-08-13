@@ -57,19 +57,21 @@
         {% include "content/content_wiki.html" %}
     {% endif %}
     <br><br>
+    {% if feat_list != None %}    
     <section>
         <h6>Randomly selected schools with similar Value and Care scores</h6>
     <div class="row">
-    {% for item in feat_list %}
-        <div class="col-xs-6 col-sm-4 col-lg-3 col-xl-2">
-            <a href="/profile/{{item[1]}}">
-        <div class="card">    
-            {% include "content/featured_school.html" %} 
-        </div></a>
-        </div>
-    {% endfor %}
+        {% for item in feat_list %}
+            <div class="col-xs-6 col-sm-4 col-lg-3 col-xl-2">
+                <a href="/profile/{{item[1]}}">
+            <div class="card">    
+                {% include "content/featured_school.html" %} 
+            </div></a>
+            </div>
+        {% endfor %}
     </div>
     </section>
+    {% endif %}    
     <br><br>
 
     <section>

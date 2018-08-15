@@ -1444,15 +1444,15 @@ def update_pct_satisfaction(inst1):
     symbol_qnty_dict = {
     'E':(sch.r_fin_MN_EARN_WNE_P6, nat_mean.MN_EARN_WNE_P6,'Earning (mean, USD)'),
     'D':(sch.r_fin_DEBT_MDN,nat_mean.DEBT_MDN,'Debt (median, USD)',''),
-    'C':(sch.r_fin_C150_4_COMB*100,nat_mean.C150_4_COMB*100,'Completion (%)',''),
+    'C':(sch.r_fin_C150_4_COMB,nat_mean.C150_4_COMB,'Completion (%)',''),
     '$':(sch.r_fin_COSTT4_COMB,nat_mean.COSTT4_COMB,'Sticker price (mean, USD)',''),
-    'W':(sch.r_fin_WDRAW_ORIG_YR6_RT*100,nat_mean.WDRAW_ORIG_YR6_RT*100,'Withdrawal (%)'),
+    'W':(sch.r_fin_WDRAW_ORIG_YR6_RT,nat_mean.WDRAW_ORIG_YR6_RT,'Withdrawal (%)'),
     'N':(sch.r_fin_NPT4_COMB,nat_mean.NPT4_COMB,'Net price (mean, USD)'),
-    'P':(sch.r_fin_PCTPELL*100,nat_mean.PCTPELL*100,'Pell recipients (%)'),
+    'P':(sch.r_fin_PCTPELL,nat_mean.PCTPELL,'Pell recipients (%)'),
     #'rankp_ADJ_AVGFACSAL':'',
     'Ex':(sch.r_fin_ADJ_INEXPFTE,nat_mean.ADJ_INEXPFTE,'Expenses per student (USD)'),
-    'FT':(sch.r_fin_PFTFAC*100,nat_mean.PFTFAC*100,'Full-time faculty (%)'),
-    'R':(sch.r_fin_COMB_RET_RATE*100,nat_mean.COMB_RET_RATE*100,'Returning students (%)')
+    'FT':(sch.r_fin_PFTFAC,nat_mean.PFTFAC,'Full-time faculty (%)'),
+    'R':(sch.r_fin_COMB_RET_RATE,nat_mean.COMB_RET_RATE,'Returning students (%)')
     }
     
     #hoverinfo = 'label+percent'

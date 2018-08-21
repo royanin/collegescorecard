@@ -193,5 +193,6 @@ def make_no2_test_dict(no2_flag, sch):
         json_param = json.dumps(no2_symbol_dict)
         encoded_json_no2 = urllib.quote_plus(json_param)
 
-        return encoded_json_no2        
-        
+        return encoded_json_no2       
+    
+    

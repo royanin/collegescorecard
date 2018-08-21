@@ -12,6 +12,7 @@ from config import set23_rand,col_list, col_list2, tr_dict, \
 from flask_app import flask_app, db, subj_dict
 from flask_app.models import Nat_avg, School_details, Zip_to_latlong, Wiki_summary, Message #Email
 from flask_app.utils import haversine_np, order_pop_subs, make_no2_test_dict, make_pct_satisfac_dict
+from dash_func import update_graph_make_plot, create_school_overview, fb_output, tw_output, yt_output
 import base64
 from operator import itemgetter
 from sqlalchemy.sql import text
@@ -554,94 +555,10 @@ layout = html.Div([
     #Institute description starts here...
     #
     #---------------------------------
-    #Quick_facts -- map and description
-    #
-    html.Div([        
-        html.Br(),
-    
-        html.Div(id='quick_facts'
-        )]#,style={'text-align': 'center'}
-        , className='container'),
-    
-    #---------------------------------
-    #Subj bar chart
-    #
-    html.Div([        
-        html.Div([
-            html.Div(id='subj_bar',
-                #dcc.Graph(id='subj_bar'),        
-                    ),
-        ], className='six columns'),            
-        html.Div(id='summary_wikipedia',
-                 className='six columns'),                        
-    ], className='container'),
-    #---------------------------------
-    #Percentile satisfaction chart and numbers at a glance
-    #
-    html.Div([ 
-        html.Div([
-            #html.Div(dcc.Graph(id='subj_donut'),
-            html.H6("Numbers at a glance"), 
-        ], className='row',style={'text-align': 'center'}),
-        html.Div([        
-        html.Div([
-            #html.Div(dcc.Graph(id='subj_donut'),
-            html.Div(id='pct_satisfaction',
-                #dcc.Graph(id='pct_satisfaction'),        
-                    ),          
-        ], className='five columns'),            
-        html.Div([
-            html.Div(id='numbers_glance'
-                    ),
-        ], className='seven columns'),  
-        ], className='row'),
-        html.Div([
-            html.Div(children=[
-                html.Details([
-                html.Summary("What does this plot mean?",
-                              style={'color': 'grey', 'font-size' : '15px'}
-                ),
-                html.Br(),
-                html.Div([
-                    html.P("In this plot we show the available/calculated quantities according to their percentile rank. The table to the right explains what each of them means. We compare these quantities among colleges in the same Carnegie class.")
-                ],#style={'background-color': cc1}
-                style=round1,
-                ),
-                ])                
-            ],className= "twelve columns"),        
-        ], className='row')            
-    ], className='container'),    
-
-    #---------------------------------
-    #Youtube embed
-    #        
-    html.Div([
-        html.Div(id='social_yt',
-                ),
-    ],style={'text-align': 'center'}, className='container'),
-    html.Br(),
-    #---------------------------------
-    #twitter and facebook embed
-    #    
-    html.Div([
-        html.H5('On other social media...',style={'text-align':'center'}),
-        #---------------------------------
-        #twitter embed
-        #       
-        #html.Div([        
-            html.Div(id='social_tw',
-                    ),
-        #], className='four columns'),
-        html.Br(),
-        #---------------------------------
-        #facebook embed
-        #        
-        #html.Div([        
-            html.Div(id='social_fb',
-                    ),
-        #], className='four columns'),
-    ], className='container'),
-    html.Hr(),
+    #experimental section
+    #            
+    html.Div(id='expt_section',children=[    
+    ]),
     #---------------------------------
     #contact form + social share embed
     #        
@@ -681,10 +598,9 @@ layout = html.Div([
                ]),
            ],className="twelve columns",style={'text-align':'center'})   
          
-        ],className='container'),  
+    ],className='container'),  
 
-],# className='container')
-className='twelve columns')
+], className='twelve columns')
 
 #################################################################################
 #Layout ends above; callbacks start below
@@ -893,22 +809,6 @@ def filter_df(n_clicks,sc_type, sc_control, acad_type, adm_range, sat_math, sat_
     return json.dumps(datasets)
 
 #Get wiki_social info
-"""
-@app.callback(
-Output('show_filter_selection', 'children'),
-[Input('filter-output', 'children')])
-def show_table_desc(json_dataset):
-    if json_dataset is None:
-
-        return html.Div("Showing {} randomly selected colleges".format(35),
-                       style={'text-align':'center'})
-    else:
-        datasets = json.loads(json_dataset)        
-        df_sel = pd.read_json(datasets['df_sel'], orient='split')
-        num_rows = df_sel.shape[0]
-        return html.Div("Showing {} colleges selected based on your filters".format(num_rows),
-                       style={'text-align':'center','color':cc7})  
-"""
 
 
 #callback_collapse:
@@ -1080,186 +980,6 @@ def dfRowFromDropdown(dd_value,json_dataset):
     return json.dumps(sel_inst)
 
 
-#callback4: Update quick_facts, based on dump1
-@app.callback(
-Output('quick_facts', 'children'),
-[Input('dump1', 'children'),
-])
-def update_qf(inst1):
-    
-    if inst1 is not None:
-        sel_inst = json.loads(json.loads(inst1))
-        
-        #open https: -- make sure it's there, else it'll append localhost...
-        inst_url = str(sel_inst['HTTPS_INSTURL'])
-        npc_url = str(sel_inst['HTTPS_NPCURL'])        
-        lat = sel_inst['LATITUDE']
-        long = sel_inst['LONGITUDE']
-        map_range = 0.010
-        bbox = [str(long - map_range), str(lat - map_range), str(long + map_range), str(lat + map_range)]
-        address = str(sel_inst['STABBR'])+', '+str(sel_inst['ZIP5'])
-        
-        if str(sel_inst['REL_AFFIL']) != 'nan':
-            rel_affil = sel_inst['REL_AFFIL']
-        else:
-            rel_affil = 'None'            
-        if str(sel_inst['OTHER_AFFIL']) != 'nan':
-            other_affil = sel_inst['OTHER_AFFIL']            
-        else:
-            other_affil = 'None'            
-        
-           
-        map_string = "//www.openstreetmap.org/export/embed.html?bbox="+"%2C".join(bbox[:])+"&marker="+str(lat)+"%2C"+str(long)+"&layers=ND"
-
-        
-        return  html.Div([
-                html.Div([
-                    html.H5('More details on '+sel_inst['INSTNM']),
-                ],style={'text-align':'center'}, className="row"),
-                html.Div([
-         
-                    html.Div([
-                        html.Div([
-                            html.B('Location: '),
-                            html.Span(sel_inst['CITY']+', '+sel_inst['STABBR']+', '+str(sel_inst['ZIP5']))
-                                   ]),
-                        html.A(str(sel_inst['HTTPS_INSTURL']),href=inst_url, target="_blank"),
-                        html.Br(),
-                        html.A(str(sel_inst['HTTPS_NPCURL']),href=npc_url, target="_blank"),
-                        html.Br(),
-                        html.Div(children=[
-                            html.B('Religious affiliation: '),
-                            html.Span(rel_affil),
-                        ]),
-                        html.Div(children=[
-                            html.B('Other affiliation(s): '),
-                            html.Span(other_affil),
-                        ]),
-                        
-                        ],className="six columns"),
-                    html.Div([
-                        html.Iframe(src=map_string,
-                                style={'border': 'none', 'width': '100%', 'height': 300}),
-                        ],className="six columns"),
-                    ],className="row"),                    
-            ],className="row")
-
-    else:
-        return ""
-    #https connection to those w/o it may fail. Is http connection going to work?
-
-#callback7: make the bar charts of some financial info, based on dump1
-
-@app.callback(
-#Output('subj_bar', 'figure'),
-Output('subj_bar', 'children'),    
-[Input('dump1', 'children'),
-])
-
-
-def update_subject_bar(inst1):
-    
-    sel_inst = json.loads(json.loads(inst1))
-    #Get the ordered list from flask_app.utils
-    xlabels,ylabels = order_pop_subs(sel_inst['POP_SUBS'])
-    param = {'xlabels':xlabels,'ylabels':ylabels}
-    json_param = json.dumps(param)
-    encoded_json_param = urllib.quote_plus(json_param)
-    return  html.Div([
-            html.Iframe(src='/popsub/{}'.format(encoded_json_param),
-                       style={'border': 'none', 'width': '95%', 'height': 450}
-                       ),
-
-        ])    
-
-#callback8: show wikipedia summary 
-@app.callback(
-Output('summary_wikipedia', 'children'),
-[Input('dump1', 'children'),
-])
-def update_wiki(inst1):
-    
-    if inst1 is not None:
-        sel_inst = json.loads(json.loads(inst1))
-        return  html.Div([
-                html.Iframe(src="/wiki_summary/"+str(sel_inst['uid']),
-                           style={'border': 'none', 'width': '95%', 'height': 415}
-                           ),
-
-            ])
-
-    else:
-        return ""
-
-
-#callback8: show youtube 
-@app.callback(
-Output('social_yt', 'children'),
-[Input('dump1', 'children'),
-])
-def update_yt(inst1):
-    
-    if inst1 is not None:
-        sel_inst = json.loads(json.loads(inst1))
-        inst_url = str(sel_inst['HTTPS_INSTURL'])
-        return  html.Div([
-                html.H5('Videos on Youtube: '+sel_inst['INSTNM']),
-                html.Br(),
-                html.Iframe(src="https://www.youtube.com/embed?listType=search&list="+str(sel_inst['INSTNM'])+', official',
-                           style={'border': 'none', 'width': '100%', 'height': 315}),
-
-            ], style={'text-align': 'center'},className="twelve columns")
-
-    else:
-        return ""
-
-#callback8: show twitter
-@app.callback(
-Output('social_tw', 'children'),
-[Input('dump1', 'children'),
-])
-def update_tw(inst1):
-    
-    if inst1 is not None:
-        sel_inst = json.loads(json.loads(inst1))
-        if str(sel_inst['uid']) is not None:  
-            print 'uid: ',sel_inst['uid']
-            return  html.Div([
-                    html.Iframe(src="/twt/{}".format(str(sel_inst['uid'])),
-                                style={'border': 'none', 'width': '100%', 'height': 500}
-                               ),
-                ],style={'text-align': 'right'}, className="six columns")
-        else:
-            return ""
-
-    else:
-        return ""
-    
-#callback8: show facebook
-@app.callback(
-Output('social_fb', 'children'),
-[Input('dump1', 'children'),
-])
-def update_fb(inst1):
-    
-    if inst1 is not None:
-        sel_inst = json.loads(json.loads(inst1))
-        if str(sel_inst['uid']) is not None:
-            w = db.session.query(Wiki_summary).filter_by(uid=sel_inst['uid']).first()
-            if w.FB_HANDL != None:
-                inst_fb = w.FB_HANDL
-            
-                return  html.Div([
-                        html.Br(),
-                        html.Iframe(src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2F"+inst_fb+"&tabs=timeline&width=340&height=500&small_header=true&adapt_container_width=true&hide_cover=false&show_facepile=true&appId=277208896022831",
-                                   style={'border': 'none', 'width': '100%', 'height': 500}),
-
-
-                    ],className="six columns")
-
-            else:
-                return "Sorry, we can't find the Facebook feed..."
-
 #crossfilter-scatter-title        
 @app.callback(
     Output('crossfilter-scatter-title', 'children'),
@@ -1327,146 +1047,152 @@ def update_cf_numbers(xaxis_column_name, yaxis_column_name,inst1):
     Input('dump1', 'children')
     ])
 def update_graph(xaxis_column_name, yaxis_column_name,xaxis_type, yaxis_type,json_dataset,inst1):
-    
-    no_avg_detect = ['Value_score', 'Care_score', 'r_fin_COMB_RET_RATE'] #
-    
-    if json_dataset is None:
-        df_sel2 = set23_rand
-    else:    
-        datasets = json.loads(json_dataset)
-        df_sel2 = pd.read_json(datasets['df_sel'], orient='split')    
-    
-
-    df_sel = df_sel2[list(set(['INSTNM',xaxis_column_name,yaxis_column_name]+table_col_list
-                              +table_col_present_dict.values() ) )]
-    sel_inst = json.loads(json.loads(inst1))
-    list_len = df_sel[yaxis_column_name].count()
-    
-    if (xaxis_column_name in no_avg_detect):
-        df_sel.is_copy = False
-        df_sel['qts_present'] = np.ones(list_len)
-    else:
-        df_sel.is_copy = False
-        #df_sel['qts_present'] = df_sel.apply(lambda row: row[table_col_present_dict[xaxis_column_name]], axis=1)
-        df_sel['qts_present'] = df_sel.apply(lambda row: row[xaxis_column_name], axis=1)
-    
-    if (yaxis_column_name in no_avg_detect):
-        df_sel.is_copy = False
-        df_sel['qts_present'] = df_sel.apply(lambda row: row['qts_present']+ 1.0, axis=1)       
-    else:
-        df_sel.is_copy = False
-        df_sel['qts_present'] = df_sel.apply(lambda row: row['qts_present']+row[yaxis_column_name], axis=1)    
-
-    
-    
- 
-    df_color1 = df_sel[df_sel['qts_present']<0.5] #[['INSTNM',xaxis_column_name,yaxis_column_name]]
-    df_color2 = df_sel[df_sel['qts_present']>=0.5] #[['INSTNM',xaxis_column_name,yaxis_column_name]]  
-
-
-    color1 = cc3
-    color2 = cc2
-    trace1 = go.Scatter(
-            x=df_color1[xaxis_column_name],
-            y=df_color1[yaxis_column_name],
-            text=df_color1['INSTNM'],
-            name='Missing values replaced by avg.*',
-            showlegend=True,
-            mode='markers',
-            marker={'size': 15,'opacity': 0.5, 'color':cc3}
-        )
-    
-    trace2 = go.Scatter(
-            x=df_color2[xaxis_column_name],
-            y=df_color2[yaxis_column_name],
-            text=df_color2['INSTNM'],
-            name='Reported values',
-            showlegend=True,
-            mode='markers',
-            marker={'size': 15,'opacity': 0.5, 'color':cc7}
-        )   
-
-    trace_dd = go.Scatter(
-        x = [sel_inst[xaxis_column_name]],
-        y = [sel_inst[yaxis_column_name]],
-        text = sel_inst['INSTNM'],
-        name = sel_inst['INSTNM'],
-        showlegend=True,
-        mode='markers',
-        marker={'size': 20,'opacity': 1.0,'color' : 'black','symbol' : "circle-open",'line' : {'width':5,},
-        }
-    )
-    traces = [trace1,trace2,trace_dd]
-
-    layout = go.Layout(
-            xaxis={
-                'title': table_col_dict[xaxis_column_name],
-                'type': 'log' if xaxis_type == 'log' else 'linear'
-            },
-            yaxis={
-                'title': table_col_dict[yaxis_column_name],
-                'type': 'log' if yaxis_type == 'log' else 'linear'
-            },
-            margin={'l': 60, 'b': 40, 't': 10, 'r': 0},
-            hovermode='closest',
-            legend={'x':'-0.08',
-                    'y':'-0.40',
-                    #'xanchor':'right',
-                    'bgcolor':'rgba(0,0,0,0.03)'}
-
-        )
-
-    return {
-        'data': traces, 'layout' : layout
-        
-    }
-        
+    return update_graph_make_plot(xaxis_column_name, yaxis_column_name,xaxis_type, yaxis_type,
+                                  json_dataset,inst1)
+     
 
 
 #pct_satisfaction
+ 
+
 @app.callback(
-Output('pct_satisfaction', 'children'),    
-#Output('pct_satisfaction', 'figure'),
-[Input('dump1', 'children')])
-def update_pct_satisfaction(inst1):
+Output('expt_section', 'children'),    
+[Input('dump1', 'children'),
+])    
+def show_inst_details(inst1):
     
     sel_inst = json.loads(json.loads(inst1))
     uid = sel_inst['uid']
     sch = db.session.query(School_details).filter_by(uid=uid).first()
-    nat_mean = db.session.query(Nat_avg).filter_by(CCBASIC=sch.CCBASIC).first()    
+    nat_mean = db.session.query(Nat_avg).filter_by(CCBASIC=sch.CCBASIC).first() 
+    wiki_social = db.session.query(Wiki_summary).filter_by(uid=sel_inst['uid']).first()  
+    
+    #school_info:
+    #quick_facts_div = create_school_overview(sel_inst)
+    
+    #pop_sub:
+    xlabels,ylabels = order_pop_subs(sel_inst['POP_SUBS'])
+    param = {'xlabels':xlabels,'ylabels':ylabels}
+    json_param = json.dumps(param)
+    encoded_json_param = urllib.quote_plus(json_param)
+    
 
+    #pct dict plot
     symbol_dict = make_pct_satisfac_dict(sch,nat_mean)
-
     json_pct_dict = json.dumps(symbol_dict)
     encoded_json_pct_dict = urllib.quote_plus(json_pct_dict)
     
-    return  html.Div([
-            html.Iframe(src='/pct/{}'.format(encoded_json_pct_dict),
-                       style={'border': 'none', 'width': '95%', 'height': 750}
-                       ),
-
-        ])    
-    
-    
-    
-#callback8: show numbers at a glance
-@app.callback(
-Output('numbers_glance', 'children'),
-[Input('dump1', 'children')])
-def numbers_glance(inst1):
-    
-    if inst1 is not None:
-        sel_inst = json.loads(json.loads(inst1))
-        return  html.Div([
-                #html.H6('Numbers at a glance'),
-                html.Br(),
-                html.Iframe(src="/numbers/"+str(sel_inst['uid']), 
-                            #use uid
-                           style={'border': 'none', 'width': '100%', 'height': 725}
-                           ),
-
-            ])
-
+    #facebook:
+    if wiki_social.FB_HANDL != None:
+        inst_fb = wiki_social.FB_HANDL
     else:
-        return '' 
+        inst_fb = ''
+        
+    return   html.Div([
+                html.Div([        
+                    html.Br(),
+
+                    html.Div(#id='quick_facts'
+                        create_school_overview(sel_inst)
+                    )]#,style={'text-align': 'center'}
+                    , className='container'),
+
+                #---------------------------------
+                #Subj bar chart
+                #
+                html.Div([        
+                    html.Div([
+                        html.Div(#id='subj_bar',
+                            html.Div([
+                                html.Iframe(src='/popsub/{}'.format(encoded_json_param),
+                                           style={'border': 'none', 'width': '95%', 'height': 450}
+                                           ),
+
+                            ])
+                            #dcc.Graph(id='subj_bar'),        
+                                ),
+                    ], className='six columns'),            
+                    html.Div(#id='summary_wikipedia',
+                        children = [html.Div([
+                            html.Iframe(src="/wiki_summary/"+str(sel_inst['uid']),
+                                       style={'border': 'none', 'width': '95%', 'height': 415}
+                                       ),
+
+                        ])],
+                             className='six columns'),                        
+                ], className='container'),
+                #---------------------------------
+                #Percentile satisfaction chart and numbers at a glance
+                #
+                html.Div([ 
+                    html.Div([
+                        html.H6("Numbers at a glance"), 
+                    ], className='row',style={'text-align': 'center'}),
+                    html.Div([        
+                    html.Div([
+                        html.Div(#id='pct_satisfaction',
+                            html.Div([
+                                html.Iframe(src='/pct/{}'.format(encoded_json_pct_dict),
+                                           style={'border': 'none', 'width': '95%', 'height': 750}
+                                           ),
+
+                            ])
+                            #dcc.Graph(id='pct_satisfaction'),        
+                                ),          
+                    ], className='five columns'),            
+                    html.Div([
+                        html.Div(#id='numbers_glance'
+                            html.Div([
+                                html.Br(),
+                                html.Iframe(src="/numbers/"+str(sel_inst['uid']), 
+                                            #use uid
+                                           style={'border': 'none', 'width': '100%', 'height': 725}
+                                           ),
+
+                            ])
+                        ),
+                    ], className='seven columns'),  
+                    ], className='row'),
+                    html.Div([
+                        html.Div(children=[
+                            html.Details([
+                            html.Summary("What does this plot mean?",
+                                          style={'color': 'grey', 'font-size' : '15px'}
+                            ),
+                            html.Br(),
+                            html.Div([
+                                html.P("In this plot we show the available/calculated quantities according to their percentile rank. The table to the right explains what each of them means. We compare these quantities among colleges in the same Carnegie class.")
+                            ],#style={'background-color': cc1}
+                            style=round1,
+                            ),
+                            ])                
+                        ],className= "twelve columns"),        
+                    ], className='row')            
+                ], className='container'),    
+        
+                html.Div([
+                    html.Div(id='social_yt1',
+                             children=yt_output(sel_inst['INSTNM'])
+                            ),
+                ],style={'text-align': 'center'}, className='container'),
+                html.Br(),
+                #---------------------------------
+                #twitter and facebook embed
+                html.Div([
+                    html.H5('On other social media...',style={'text-align':'center'}),
+                    #---------------------------------
+                    #twitter embed     
+                        html.Div(id='social_tw1',
+                                 children=tw_output(wiki_social.TW_HANDL)                                 
+                                ),
+                    html.Br(),
+                    #---------------------------------
+                    #facebook embed     
+                        html.Div(id='social_fb1',
+                                 children=fb_output(inst_fb)
+                                ),
+                ], className='container'),
+            ]),
+
+
 

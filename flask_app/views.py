@@ -9,13 +9,19 @@ from datetime import datetime, timedelta
 import urllib
 
 
-@flask_app.route('/twt/<uid>')
-def show_tw(uid):
+@flask_app.route('/twt/<TW_HANDL>')
+def show_tw(TW_HANDL):
+    """
     w = db.session.query(Wiki_summary).filter_by(uid=uid).first()
     if w.TW_HANDL != None:
         return('<a class="twitter-timeline" href="https://twitter.com/'+str(w.TW_HANDL)+'?ref_src=twsrc%5Etfw/">Tweets</a> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>')
     else:
         return("<h4>Sorry, we can't find the twitter feed...</h4>")
+    """    
+    if TW_HANDL != "":
+        return('<a class="twitter-timeline" href="https://twitter.com/'+str(TW_HANDL)+'?ref_src=twsrc%5Etfw/">Tweets</a> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>')
+    else:
+        return("<h4>Sorry, we can't find the twitter feed...</h4>")    
 
 @flask_app.route('/wiki_summary/<uid>')
 def show_wiki_summary(uid):

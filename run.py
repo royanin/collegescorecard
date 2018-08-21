@@ -9,7 +9,7 @@ import json
 from flask_sqlalchemy import SQLAlchemy
 
 from app import app
-from dash_app import app_table#, search
+from dash_app import app_table, app_subj, app_pct, app_satscores, app_actscores
 from flask_app import views
 
 print(dcc.__version__) # 0.6.0 or above is required
@@ -37,6 +37,14 @@ def display_page(pathname):
     
     if pathname == '/':
         return app_table.layout
+    elif pathname.startswith('/popsub/'):
+        return app_subj.layout
+    elif pathname.startswith('/pct/'):
+        return app_pct.layout
+    elif pathname.startswith('/satscores/'):
+        return app_satscores.layout
+    elif pathname.startswith('/actscores/'):
+        return app_actscores.layout    
     else:
         return '404'    
 

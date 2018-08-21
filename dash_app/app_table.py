@@ -6,12 +6,12 @@ import dash_table_experiments as dt
 import plotly.graph_objs as go
 import pandas as pd
 import numpy as np
-import json,ast, shelve, re
+import json,ast, shelve, re, urllib
 from config import set23_rand,col_list, col_list2, tr_dict, \
     dist_cal, state_list, region_dict,loc_type_dict, acad_type_dict, table_col_list, table_col_dict, contact_options_dict, msg_len_max,pct_rank_qnty_dict, available_indicators,table_col_present_dict,MAX_RESULTS #,set23,nat_set234_mean
 from flask_app import flask_app, db, subj_dict
 from flask_app.models import Nat_avg, School_details, Zip_to_latlong, Wiki_summary, Message #Email
-from flask_app.utils import haversine_np, order_pop_subs
+from flask_app.utils import haversine_np, order_pop_subs, make_no2_test_dict, make_pct_satisfac_dict
 import base64
 from operator import itemgetter
 from sqlalchemy.sql import text
@@ -568,7 +568,8 @@ layout = html.Div([
     #
     html.Div([        
         html.Div([
-            html.Div(dcc.Graph(id='subj_bar'),        
+            html.Div(id='subj_bar',
+                #dcc.Graph(id='subj_bar'),        
                     ),
         ], className='six columns'),            
         html.Div(id='summary_wikipedia',
@@ -585,7 +586,8 @@ layout = html.Div([
         html.Div([        
         html.Div([
             #html.Div(dcc.Graph(id='subj_donut'),
-            html.Div(dcc.Graph(id='pct_satisfaction'),        
+            html.Div(id='pct_satisfaction',
+                #dcc.Graph(id='pct_satisfaction'),        
                     ),          
         ], className='five columns'),            
         html.Div([
@@ -1149,7 +1151,8 @@ def update_qf(inst1):
 #callback7: make the bar charts of some financial info, based on dump1
 
 @app.callback(
-Output('subj_bar', 'figure'),
+#Output('subj_bar', 'figure'),
+Output('subj_bar', 'children'),    
 [Input('dump1', 'children'),
 ])
 
@@ -1158,23 +1161,16 @@ def update_subject_bar(inst1):
     
     sel_inst = json.loads(json.loads(inst1))
     #Get the ordered list from flask_app.utils
-    
     xlabels,ylabels = order_pop_subs(sel_inst['POP_SUBS'])
-    
-    hoverinfo = 'label+percent'
-    title1 = "Popular subjects"
+    param = {'xlabels':xlabels,'ylabels':ylabels}
+    json_param = json.dumps(param)
+    encoded_json_param = urllib.quote_plus(json_param)
+    return  html.Div([
+            html.Iframe(src='/popsub/{}'.format(encoded_json_param),
+                       style={'border': 'none', 'width': '95%', 'height': 450}
+                       ),
 
-    data = [go.Bar(x=xlabels,y=ylabels,
-                   marker = dict(color=cc7),
-                   hoverinfo=hoverinfo)]
-
-    layout = go.Layout(title=title1,showlegend=False,hovermode = 'closest',
-                      margin={'l': 40, 'b': 200, 't': 40, 'r': 40},
-                      height=415)
-    
-    return {
-        'data': data,'layout': layout
-        }
+        ])    
 
 #callback8: show wikipedia summary 
 @app.callback(
@@ -1429,104 +1425,30 @@ def update_graph(xaxis_column_name, yaxis_column_name,xaxis_type, yaxis_type,jso
 
 #pct_satisfaction
 @app.callback(
-Output('pct_satisfaction', 'figure'),
+Output('pct_satisfaction', 'children'),    
+#Output('pct_satisfaction', 'figure'),
 [Input('dump1', 'children')])
 def update_pct_satisfaction(inst1):
     
     sel_inst = json.loads(json.loads(inst1))
-
-    pop_subj_pc = ast.literal_eval(sel_inst['POP_SUBS'])
     uid = sel_inst['uid']
     sch = db.session.query(School_details).filter_by(uid=uid).first()
     nat_mean = db.session.query(Nat_avg).filter_by(CCBASIC=sch.CCBASIC).first()    
 
+    symbol_dict = make_pct_satisfac_dict(sch,nat_mean)
+
+    json_pct_dict = json.dumps(symbol_dict)
+    encoded_json_pct_dict = urllib.quote_plus(json_pct_dict)
     
-    symbol_qnty_dict = {
-    'E':(sch.r_fin_MN_EARN_WNE_P6, nat_mean.MN_EARN_WNE_P6,'Earning (mean, USD)'),
-    'D':(sch.r_fin_DEBT_MDN,nat_mean.DEBT_MDN,'Debt (median, USD)',''),
-    'C':(sch.r_fin_C150_4_COMB,nat_mean.C150_4_COMB,'Completion (%)',''),
-    '$':(sch.r_fin_COSTT4_COMB,nat_mean.COSTT4_COMB,'Sticker price (mean, USD)',''),
-    'W':(sch.r_fin_WDRAW_ORIG_YR6_RT,nat_mean.WDRAW_ORIG_YR6_RT,'Withdrawal (%)'),
-    'N':(sch.r_fin_NPT4_COMB,nat_mean.NPT4_COMB,'Net price (mean, USD)'),
-    'P':(sch.r_fin_PCTPELL,nat_mean.PCTPELL,'Pell recipients (%)'),
-    #'rankp_ADJ_AVGFACSAL':'',
-    'Ex':(sch.r_fin_ADJ_INEXPFTE,nat_mean.ADJ_INEXPFTE,'Expenses per student (USD)'),
-    'FT':(sch.r_fin_PFTFAC,nat_mean.PFTFAC,'Full-time faculty (%)'),
-    'R':(sch.r_fin_COMB_RET_RATE,nat_mean.COMB_RET_RATE,'Returning students (%)')
-    }
+    return  html.Div([
+            html.Iframe(src='/pct/{}'.format(encoded_json_pct_dict),
+                       style={'border': 'none', 'width': '95%', 'height': 750}
+                       ),
+
+        ])    
     
-    #hoverinfo = 'label+percent'
-
-    y_list = []
-    ann_list = []
-    for k,v in pct_rank_qnty_dict.iteritems():
-        if (sel_inst[k] >= 0.0):
-            y_list.append(sel_inst[k])
-            ann_list.append(v)
-    y_ann = [list(x) for x in zip(*sorted(zip(y_list,ann_list), key=itemgetter(0) )) ]
-    random_y = y_ann[0]
-    ann_text = y_ann[1]
-    random_x = [(1.3 - i*0.08) for i in range(len(random_y))]
-
-    text1 = ['<b>'+symbol_qnty_dict[i][2]+' :</b> '+str(symbol_qnty_dict[i][0])+'<br><b>National avg.:</b> '+str(symbol_qnty_dict[i][1])+'<br>' for i in ann_text ]
     
-    # Create a trace
-    trace = go.Scatter(
-        x = random_x,
-        y = random_y,
-        mode = 'markers',
-        text = text1,
-        hoverinfo = "text",
-        marker=dict(size=35,opacity=0.5,color='rgba(0,0,0,0.2)',
-            line=dict(width=3,color=cc7))        
-    )    
-       
-    layout = go.Layout(
-    shapes=[#dict(type='line',x0=0.0,y0=0.0,x1=1.0,y1=1.0,line=dict(color='red',width=3),),
-        dict(type='line',x0=0.0,y0=random_y[i],x1=(random_x[i]-0.1),y1=random_y[i],
-             line=dict(color=cc7,width=3)) for i in range(len(random_y))],
-    yaxis=dict(
-        range=[0,100],
-        showgrid=False,
-        tick0=0.0,
-        dtick=50.0,
-    ),
-    xaxis=dict(
-        range=[0,1.5],
-        showline=False,
-        showgrid=False,        
-        #tickfont=dict(
-            #size=0)),
-        showticklabels=False,
-    ),
-    annotations=[dict(x=random_x[i],y=random_y[i],text=ann_text[i],showarrow=False,) for i in range(len(random_y))],
-    #annotations=[dict(text=ann_text[i],showarrow=False,) for i in range(len(random_y))],        
-
-    images= [dict(source='data:image/png;base64,{}'.format(encoded_sm),xref= "paper",yref= "paper",
-                x= -0.1,y= 0.95,sizex= 0.15,sizey= 0.15,xanchor= "right",yanchor= "bottom"),
-             dict(source='data:image/png;base64,{}'.format(encoded_me),xref= "paper",yref= "paper",
-                x= -0.1,y= 0.47,sizex= 0.15,sizey= 0.15,xanchor= "right",yanchor= "bottom"),
-             dict(source='data:image/png;base64,{}'.format(encoded_fr),xref= "paper",yref= "paper",
-                x= -0.1,y= -0.02,sizex= 0.13,sizey= 0.13,xanchor= "right",yanchor= "bottom")],
-    #barmode='group',
-    #paper_bgcolor='rgb(255,255,255)',
-    hoverlabel=dict(bgcolor=cc6,),
-    width=400,
-    height=750,
-    plot_bgcolor=cc5,
-    title='Percentile rank compared to national stat*',
-    hovermode='closest',
-    showlegend=False,
-    )    
-
-    data = [trace]
-
     
-    return ({
-        'data': data,'layout': layout
-        })
-        
-
 #callback8: show numbers at a glance
 @app.callback(
 Output('numbers_glance', 'children'),

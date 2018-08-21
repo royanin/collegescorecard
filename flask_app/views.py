@@ -4,8 +4,9 @@ from models import Wiki_summary, Nat_avg, School_details, Message
 import flask_whooshalchemy as whooshalchemy
 from .forms import ContactForm
 from .emails import notify_server_error, new_message
-from .utils import order_pop_subs, suggest_featured_schools
+from .utils import order_pop_subs, suggest_featured_schools, make_pct_satisfac_dict, make_no2_test_dict
 from datetime import datetime, timedelta
+import urllib
 
 
 @flask_app.route('/twt/<uid>')
@@ -116,11 +117,16 @@ def school_profile(uid):
             #Check if any SAT or ACT scores is present
             SAT_PRESENT = 0
             ACT_PRESENT = 0
+            sat_string = None
+            act_string = None
             if sch.SATVRMID != None or sch.SATMTMID != None or sch.SATWRMID != None:
                 SAT_PRESENT = 1
+                sat_string = make_no2_test_dict('SAT_PRESENT',sch)
             if sch.ACTCMMID != None or sch.ACTENMID != None or sch.ACTMTMID != None or sch.ACTWRMID != None:
                 ACT_PRESENT = 1
-
+                act_string = make_no2_test_dict('ACT_PRESENT',sch)
+                
+                
             if wiki_social.TW_HANDL != "":
                 print wiki_social.TW_HANDL
                 if wiki_social.TW_HANDL[-1]==" ":
@@ -134,6 +140,16 @@ def school_profile(uid):
             #Find similar featured schools (Care score and value score within +/-3 )
             feat_list = suggest_featured_schools(sch.Value_score,sch.Care_score,uid=sch.uid)
 
+            #The following few lines are experimental:
+            param = {'xlabels':xlabels,'ylabels':ylabels}
+            json_param = json.dumps(param)
+            encoded_json_param = urllib.quote_plus(json_param)
+            
+            symbol_dict = make_pct_satisfac_dict(sch,nat_mean)
+
+            json_pct_dict = json.dumps(symbol_dict)
+            encoded_json_pct_dict = urllib.quote_plus(json_pct_dict)
+            
             return render_template("profile.html",
                                    sch=sch,
                                    wiki_social=wiki_social,
@@ -147,7 +163,11 @@ def school_profile(uid):
                                    SAT_PRESENT = SAT_PRESENT,
                                    ACT_PRESENT = ACT_PRESENT,
                                    TW_ALT=TW_ALT,
-                                   feat_list=feat_list)
+                                   feat_list=feat_list,
+                                   encoded_json_param=encoded_json_param,
+                                   encoded_json_pct_dict=encoded_json_pct_dict,
+                                   sat_string = sat_string,
+                                   act_string = act_string)
 
         else:
             return ("No entries found.") 
@@ -157,7 +177,7 @@ def school_profile(uid):
 @flask_app.route('/profile/', methods=['GET'])
 @flask_app.route('/search', methods=['GET','POST'])
 def search():
-    if request.method == "GET":
+    if request.method == "GET":        
         feat_list1 = suggest_featured_schools(90,90,uid=None)
         feat_list2 = suggest_featured_schools(70,70,uid=None)        
         return render_template('search.html',

@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-import ast, random
+import ast, random, json, urllib
 from operator import itemgetter
 from config import subj_dict
 from flask_app import db
@@ -69,3 +69,129 @@ def suggest_featured_schools(v_score, c_score,uid=None):
             #print feat_list
             
             return feat_list
+        
+        
+def make_pct_satisfac_dict(sch, nat_mean):
+    
+    symbol_dict = {}   
+
+    if sch.MN_EARN_WNE_P6_PRESENT != 0:
+        symbol_dict['E'] = (sch.r_fin_MN_EARN_WNE_P6, nat_mean.MN_EARN_WNE_P6,'Earning (mean, USD)',
+                           sch.rankp_MN_EARN_WNE_P6)
+        
+    if sch.DEBT_MDN_PRESENT != 0:
+        symbol_dict['D']=(sch.r_fin_DEBT_MDN,nat_mean.DEBT_MDN,'Debt (median, USD)',
+                         sch.rankp_DEBT_MDN)
+        
+    if sch.C150_4_COMB_PRESENT != 0:
+        symbol_dict['C']=(sch.r_fin_C150_4_COMB,nat_mean.C150_4_COMB,'Completion (%)',
+                         sch.rankp_C150_4_COMB)
+
+    if sch.COSTT4_COMB_PRESENT != 0:
+        symbol_dict['$']=(sch.r_fin_COSTT4_COMB,nat_mean.COSTT4_COMB,'Sticker price (mean, USD)',
+                         sch.rankp_COSTT4_COMB)
+
+    if sch.WDRAW_ORIG_YR6_RT_PRESENT != 0:
+        symbol_dict['W']=(sch.r_fin_WDRAW_ORIG_YR6_RT,nat_mean.WDRAW_ORIG_YR6_RT,'Withdrawal (%)',
+                         sch.rankp_WDRAW_ORIG_YR6_RT)
+        
+    if sch.NPT4_COMB_PRESENT != 0:
+        symbol_dict['N']=(sch.r_fin_NPT4_COMB,nat_mean.NPT4_COMB,'Net price (mean, USD)',
+                         sch.rankp_NPT4_COMB)
+        
+    if sch.PCTPELL_PRESENT != 0:
+        symbol_dict['P']=(sch.r_fin_PCTPELL,nat_mean.PCTPELL,'Pell recipients (%)',
+                         sch.rankp_PCTPELL)
+        
+    if sch.ADJ_INEXPFTE_PRESENT != 0:
+        symbol_dict['Ex']=(sch.r_fin_ADJ_INEXPFTE,nat_mean.ADJ_INEXPFTE,'Expenses per student (USD)',
+                          sch.rankp_ADJ_INEXPFTE)
+        
+    if sch.PFTFAC_PRESENT != 0:
+        symbol_dict['FT']=(sch.r_fin_PFTFAC,nat_mean.PFTFAC,'Full-time faculty (%)',
+                          sch.rankp_PFTFAC)
+    
+    if (sch.RET_FT4_COMB_PRESENT)*(sch.RET_PT4_COMB_PRESENT)*(sch.PFTFTUG1_EF_PRESENT) != 0:
+        symbol_dict['R'] = (sch.r_fin_COMB_RET_RATE,nat_mean.COMB_RET_RATE,'Returning students (%)',
+                           sch.rankp_COMB_RET_RATE)    
+        
+    return symbol_dict
+    
+    
+    
+def make_no2_test_dict(no2_flag, sch):
+    
+    no2_symbol_dict = {}   
+
+    if no2_flag == 'SAT_PRESENT':
+        #Verbal
+        if sch.SATVRMID != None:
+            sat_vr_25 = sch.SATVR25 if (sch.SATVR25 != None) else sch.SATVRMID
+            sat_vr_75 = sch.SATVR75 if (sch.SATVR75 != None) else sch.SATVRMID
+            no2_symbol_dict['sat_vr'] = (sat_vr_25,
+                                         sch.SATVRMID - sat_vr_25,
+                                         sat_vr_75 - sch.SATVRMID,
+                                         'verbal')            
+        #math
+        if sch.SATMTMID != None:            
+            sat_mt_25 = sch.SATMT25 if (sch.SATMT25 != None) else sch.SATMTMID
+            sat_mt_75 = sch.SATMT75 if (sch.SATMT75 != None) else sch.SATMTMID
+            no2_symbol_dict['sat_mt'] = (sat_mt_25,
+                                         sch.SATMTMID - sat_mt_25,
+                                         sat_mt_75 - sch.SATMTMID,
+                                         'math')              
+        #writing
+        if sch.SATWRMID != None:            
+            sat_wr_25 = sch.SATWR25 if (sch.SATWR25 != None) else sch.SATWRMID
+            sat_wr_75 = sch.SATWR75 if (sch.SATWR75 != None) else sch.SATWRMID
+            no2_symbol_dict['sat_wr'] = (sat_wr_25,
+                                         sch.SATWRMID - sat_wr_25,
+                                         sat_wr_75 - sch.SATWRMID,
+                                         'writing')       
+
+        json_param = json.dumps(no2_symbol_dict)
+        encoded_json_no2 = urllib.quote_plus(json_param)
+
+        return encoded_json_no2
+    
+    
+    elif no2_flag == 'ACT_PRESENT':
+        #cumulative
+        if sch.ACTCMMID != None:
+            act_cm_25 = sch.ACTCM25 if (sch.ACTCM25 != None) else sch.ACTCMMID
+            act_cm_75 = sch.ACTCM75 if (sch.ACTCM75 != None) else sch.ACTCMMID
+            no2_symbol_dict['act_cm'] = (act_cm_25,
+                                         sch.ACTCMMID -  act_cm_25,
+                                         act_cm_75 - sch.ACTCMMID,
+                                         'cumulative')            
+        #english
+        if sch.ACTENMID != None:
+            act_en_25 = sch.ACTEN25 if (sch.ACTEN25 != None) else sch.ACTENMID
+            act_en_75 = sch.ACTEN75 if (sch.ACTEN75 != None) else sch.ACTENMID
+            no2_symbol_dict['act_en'] = (act_en_25,
+                                         sch.ACTENMID - act_en_25,
+                                         act_en_75 - sch.ACTENMID,
+                                         'english')            
+        #math
+        if sch.ACTMTMID != None:            
+            act_mt_25 = sch.ACTMT25 if (sch.ACTMT25 != None) else sch.ACTMTMID
+            act_mt_75 = sch.ACTMT75 if (sch.ACTMT75 != None) else sch.ACTMTMID
+            no2_symbol_dict['act_mt'] = (act_mt_25,
+                                         sch.ACTMTMID - act_mt_25,
+                                         act_mt_75 - sch.ACTMTMID,
+                                         'math')              
+        #writing
+        if sch.ACTWRMID != None:            
+            act_wr_25 = sch.ACTWR25 if (sch.ACTWR25 != None) else sch.ACTWRMID
+            act_wr_75 = sch.ACTWR75 if (sch.ACTWR75 != None) else sch.ACTWRMID
+            no2_symbol_dict['act_wr'] = (act_wr_25,
+                                         sch.ACTWRMID - act_wr_25,
+                                         act_wr_75 - sch.ACTWRMID,
+                                         'writing')     
+
+        #return no2_symbol_dict            
+        json_param = json.dumps(no2_symbol_dict)
+        encoded_json_no2 = urllib.quote_plus(json_param)
+
+        return encoded_json_no2        
+        

@@ -9,6 +9,7 @@ import dash_html_components as html
 import dash_core_components as dcc
 import dash_table_experiments as dt
 import plotly.graph_objs as go
+from flask_app.utils import make_no2_test_dict
 
 
 
@@ -122,7 +123,7 @@ def update_graph_make_plot(xaxis_column_name, yaxis_column_name,xaxis_type, yaxi
     }        
 
 
-def create_school_overview(sel_inst):
+def create_school_overview(sel_inst,sch):
 #open https: -- make sure it's there, else it'll append localhost...
     inst_url = str(sel_inst['HTTPS_INSTURL'])
     npc_url = str(sel_inst['HTTPS_NPCURL'])        
@@ -144,7 +145,73 @@ def create_school_overview(sel_inst):
 
     map_string = "//www.openstreetmap.org/export/embed.html?bbox="+"%2C".join(bbox[:])+"&marker="+str(lat)+"%2C"+str(long)+"&layers=ND"
 
+    return_div = [
+        html.Div([
+                html.H5('More details on '+sel_inst['INSTNM']),
+            ],style={'text-align':'center'}, className="row"),
+        html.Div([
 
+                html.Div([
+                    html.Div([
+                        html.B('Location: '),
+                        html.Span(sel_inst['CITY']+', '+sel_inst['STABBR']+', '+str(sel_inst['ZIP5']))
+                               ]),
+                    html.A(str(sel_inst['HTTPS_INSTURL']),href=inst_url, target="_blank"),
+                    html.Br(),
+                    html.A(str(sel_inst['HTTPS_NPCURL']),href=npc_url, target="_blank"),
+                    html.Br(),
+                    html.Div(children=[
+                        html.B('Religious affiliation: '),
+                        html.Span(rel_affil),
+                    ]),
+                    html.Div(children=[
+                        html.B('Other affiliation(s): '),
+                        html.Span(other_affil),
+                    ]),
+
+                    ],className="six columns"),
+                html.Div([
+                    html.Iframe(src=map_string,
+                            style={'border': 'none', 'width': '100%', 'height': 300}),
+                    ],className="six columns"),
+                ],className="row"),
+    ]
+
+    
+    
+    #SAT and ACT
+    no2_test_div = []
+    if sch.SATVRMID != None or sch.SATMTMID != None or sch.SATWRMID != None:
+        SAT_PRESENT = 1
+        sat_string = make_no2_test_dict('SAT_PRESENT',sch)
+        no2_test_div.append(
+            html.Div([
+                    html.Iframe(src="/satscores/{}".format(sat_string) ,
+                            style={'border': 'none', 'width': '100%', 'height': 205}),
+                    ],className="six columns")
+        )
+    else:
+        sat_string = None
+    if sch.ACTCMMID != None or sch.ACTENMID != None or sch.ACTMTMID != None or sch.ACTWRMID != None:
+        ACT_PRESENT = 1
+        act_string = make_no2_test_dict('ACT_PRESENT',sch)
+        no2_test_div.append(
+            html.Div([
+                    html.Iframe(src="/actscores/{}".format(act_string),
+                            style={'border': 'none', 'width': '100%', 'height': 205}),
+                    ],className="six columns")
+        )
+    else:
+        act_string = None 
+        
+    if len(no2_test_div) > 0:
+        return_div.append(
+        html.Div(no2_test_div, className="row")
+        )
+        
+    return html.Div(return_div, className="row")
+    
+    """
     return  html.Div([
             html.Div([
                 html.H5('More details on '+sel_inst['INSTNM']),
@@ -174,9 +241,19 @@ def create_school_overview(sel_inst):
                     html.Iframe(src=map_string,
                             style={'border': 'none', 'width': '100%', 'height': 300}),
                     ],className="six columns"),
-                ],className="row"),                    
+                ],className="row"),     
+            html.Div([        
+                html.Div([
+                    html.Iframe(src="/satscores/{}".format(sat_string) ,
+                            style={'border': 'none', 'width': '100%', 'height': 205}),
+                    ],className="six columns"),
+                html.Div([
+                    html.Iframe(src="/actscores/{}".format(act_string),
+                            style={'border': 'none', 'width': '100%', 'height': 205}),
+                    ],className="six columns"),                
+                ],className="row"),                     
         ],className="row")
-
+    """
 #https connection to those w/o it may fail. Is http connection going to work?
 
 def fb_output(inst_fb):

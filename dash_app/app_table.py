@@ -776,11 +776,6 @@ def filter_df(n_clicks,sc_type, sc_control, acad_type, adm_range, sat_math, sat_
             print "Unfortunately the zipcode {} is not in the database".format
             #db_shelve.close()
         
-    """
-    This could actually be the first filter, if it's reasonably fast enough
-    However, we may need a sqlite database for doing this efficiently. There's
-    no point loading a 2.3MB file in dictionary which is used only occasionally at best
-    """ 
                 
     #Construct the query string:
     filter_string = '('+") & (".join(filter_dict[:])+')'
@@ -1093,7 +1088,7 @@ def show_inst_details(inst1):
                     html.Br(),
 
                     html.Div(#id='quick_facts'
-                        create_school_overview(sel_inst)
+                        create_school_overview(sel_inst,sch)
                     )]#,style={'text-align': 'center'}
                     , className='container'),
 

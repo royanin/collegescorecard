@@ -40,7 +40,11 @@ def order_pop_subs(POP_SUBS):
     xlabels = [ subj_dict[i][0] for i in subj_list[0] ]
     ylabels = [ round(100.0*subj_list[1][i],1) for i in range(len(subj_list[0])) ]
 
+    #param = {'xlabels':xlabels,'ylabels':ylabels}
+    #json_param = json.dumps(param)
+    #encoded_json_param = urllib.quote_plus(json_param)
     return (xlabels,ylabels)
+    #return encoded_json_param
 
 
 def suggest_featured_schools(v_score, c_score,uid=None):
@@ -115,7 +119,9 @@ def make_pct_satisfac_dict(sch, nat_mean):
         symbol_dict['R'] = (sch.r_fin_COMB_RET_RATE,nat_mean.COMB_RET_RATE,'Returning students (%)',
                            sch.rankp_COMB_RET_RATE)    
         
-    return symbol_dict
+    #return symbol_dict
+    json_pct_dict = json.dumps(symbol_dict)
+    return urllib.quote_plus(json_pct_dict)
     
     
     

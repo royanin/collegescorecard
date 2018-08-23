@@ -1,20 +1,26 @@
 <div>
     <div class="row">
-    <div class="col-sm-10 offset-sm-1 text-center">
+    <!-- <div class="col-sm-10 offset-sm-1 text-center"> -->
+    <div class="col-sm-10">        
         <div class="divider-5"></div>
         {% if session['message'] %}
-        <h3>{{ session['message'] }}</h3>
+        <h6>{{ session['message'] }}</h6>
         {% endif %}
     </div>
     </div>
         
-    <div class="row text-center">
-        <div class="col-lg-8 offset-lg-2">         
+    <!-- <div class="row text-center"> -->
+    <div class="row">        
+        <!-- <div class="col-lg-8 offset-lg-2">         -->
+        <div class="col-lg-4"> 
+        <h6>Say hi to CollegeScoreCard.io</h6>            
         We would like to hear from you, whether you are in high school just starting out your college search, or a parent shopping for your kid's college. We welcome comments from career counselors and college administrators; as well as from data enthusiasts!
         </div>
-    </div>
+    <!-- </div>
     
-    <div class="col-lg-8 offset-lg-2">        
+    <div class="col-lg-8 offset-lg-2">        -->
+    <div class="col-lg-8"> 
+        <br>
     <form action='/contact_us' method="post" name="post" enctype="multipart/form-data"  onsubmit="setTimeout(function () { window.location.reload(); }, 300)" >
         <div class="form-group">
                 {{ g.contact_form.email(id="contact-email", maxlength="200", class="form-control", placeholder="Your email") }}              
@@ -38,6 +44,7 @@
             <label>{{ g.contact_form.get_newsletter(id="contact-nl") }} Sign up for the newsletter </label>
         </div>
         </form>
+        {% include "content/form_share_social_content.html" %}                
         </div>
 
 <script>

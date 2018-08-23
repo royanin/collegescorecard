@@ -116,7 +116,11 @@ def school_profile(uid):
             #Rendering pop_subs:
             xlabels,ylabels = order_pop_subs(sch.POP_SUBS)
             num_pop_subs = len(xlabels)
-
+            param = {'xlabels':xlabels,'ylabels':ylabels}
+            json_param = json.dumps(param)
+            encoded_json_param = urllib.quote_plus(json_param)
+           
+            encoded_json_pct_dict = make_pct_satisfac_dict(sch,nat_mean)
             #Convert ADJ_ADM_RATE to pct
             adm_pct = round(sch.ADJ_ADM_RATE*100,1)
 
@@ -134,27 +138,18 @@ def school_profile(uid):
                 
                 
             if wiki_social.TW_HANDL != "":
-                print wiki_social.TW_HANDL
+                #print wiki_social.TW_HANDL
                 if wiki_social.TW_HANDL[-1]==" ":
                     TW_ALT = wiki_social.TW_HANDL.rstrip()
                 else:
                     TW_ALT = wiki_social.TW_HANDL
             else:
-                print wiki_social.TW_HANDL
+                #print wiki_social.TW_HANDL
                 TW_ALT = ""
                 
             #Find similar featured schools (Care score and value score within +/-3 )
             feat_list = suggest_featured_schools(sch.Value_score,sch.Care_score,uid=sch.uid)
 
-            #The following few lines are experimental:
-            param = {'xlabels':xlabels,'ylabels':ylabels}
-            json_param = json.dumps(param)
-            encoded_json_param = urllib.quote_plus(json_param)
-            
-            symbol_dict = make_pct_satisfac_dict(sch,nat_mean)
-
-            json_pct_dict = json.dumps(symbol_dict)
-            encoded_json_pct_dict = urllib.quote_plus(json_pct_dict)
             
             return render_template("profile.html",
                                    sch=sch,
@@ -192,20 +187,15 @@ def search():
 
     #g.search_form = SearchForm()
     elif request.method == "POST":
-        print 'POST request'
+        #print 'POST request'
         query = request.form.get('autocomplete')
-        print query
+        #print query
 
 
     
     results_schools = School_details.query.whoosh_search(query, MAX_SEARCH_RESULTS).all()
     results_wiki = Wiki_summary.query.whoosh_search(query, MAX_SEARCH_RESULTS).all()
     
-    for item in results_schools:
-        print item.INSTNM, item.uid
-    print '\n\n'
-    for item in results_wiki:
-        print item.inst_nm, item.uid
 
     #If there's no result, message plus exit:
     if (len(results_schools)+ len(results_wiki) == 0):
@@ -219,11 +209,9 @@ def search():
     #If there's only 1 result, go straight to profile:
     if len(results_schools) == 1:
         link = results_schools[0].uid
-        print 'In 1 result', link
         return redirect("/profile/"+link)
     elif len(results_schools) ==0 and len(results_wiki) == 1:
         link = results_wiki[0].uid
-        print 'In 1 result', link
         return redirect("/profile/"+link)
     
     if len(results_schools) > 1:
@@ -236,7 +224,6 @@ def search():
 
         
     results_count = len(results)
-    print results,result_type,results_count
     return render_template('search_results.html',
                                query = query,
                                results = results,
@@ -267,7 +254,6 @@ def sitemap():
         else:
             pages.append(item)
     
-    print pages
     # school model pages
     sch_list = db.session.query(School_details).all()
     for sch in sch_list:

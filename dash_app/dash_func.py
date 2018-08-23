@@ -211,49 +211,7 @@ def create_school_overview(sel_inst,sch):
         
     return html.Div(return_div, className="row")
     
-    """
-    return  html.Div([
-            html.Div([
-                html.H5('More details on '+sel_inst['INSTNM']),
-            ],style={'text-align':'center'}, className="row"),
-            html.Div([
 
-                html.Div([
-                    html.Div([
-                        html.B('Location: '),
-                        html.Span(sel_inst['CITY']+', '+sel_inst['STABBR']+', '+str(sel_inst['ZIP5']))
-                               ]),
-                    html.A(str(sel_inst['HTTPS_INSTURL']),href=inst_url, target="_blank"),
-                    html.Br(),
-                    html.A(str(sel_inst['HTTPS_NPCURL']),href=npc_url, target="_blank"),
-                    html.Br(),
-                    html.Div(children=[
-                        html.B('Religious affiliation: '),
-                        html.Span(rel_affil),
-                    ]),
-                    html.Div(children=[
-                        html.B('Other affiliation(s): '),
-                        html.Span(other_affil),
-                    ]),
-
-                    ],className="six columns"),
-                html.Div([
-                    html.Iframe(src=map_string,
-                            style={'border': 'none', 'width': '100%', 'height': 300}),
-                    ],className="six columns"),
-                ],className="row"),     
-            html.Div([        
-                html.Div([
-                    html.Iframe(src="/satscores/{}".format(sat_string) ,
-                            style={'border': 'none', 'width': '100%', 'height': 205}),
-                    ],className="six columns"),
-                html.Div([
-                    html.Iframe(src="/actscores/{}".format(act_string),
-                            style={'border': 'none', 'width': '100%', 'height': 205}),
-                    ],className="six columns"),                
-                ],className="row"),                     
-        ],className="row")
-    """
 #https connection to those w/o it may fail. Is http connection going to work?
 
 def fb_output(inst_fb):

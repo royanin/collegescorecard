@@ -70,44 +70,15 @@ Output('pct_satisfaction2', 'figure'),
 ])
 def update_pct_satisfaction(inst1,url_string):
     
-    #sel_inst = json.loads(json.loads(inst1))
-
-    #uid = sel_inst['uid']
-    #sch = db.session.query(School_details).filter_by(uid=uid).first()
-    #nat_mean = db.session.query(Nat_avg).filter_by(CCBASIC=sch.CCBASIC).first()    
-
-    """
-    symbol_qnty_dict = {
-    'E':(sch.r_fin_MN_EARN_WNE_P6, nat_mean.MN_EARN_WNE_P6,'Earning (mean, USD)'),
-    'D':(sch.r_fin_DEBT_MDN,nat_mean.DEBT_MDN,'Debt (median, USD)',''),
-    'C':(sch.r_fin_C150_4_COMB,nat_mean.C150_4_COMB,'Completion (%)',''),
-    '$':(sch.r_fin_COSTT4_COMB,nat_mean.COSTT4_COMB,'Sticker price (mean, USD)',''),
-    'W':(sch.r_fin_WDRAW_ORIG_YR6_RT,nat_mean.WDRAW_ORIG_YR6_RT,'Withdrawal (%)'),
-    'N':(sch.r_fin_NPT4_COMB,nat_mean.NPT4_COMB,'Net price (mean, USD)'),
-    'P':(sch.r_fin_PCTPELL,nat_mean.PCTPELL,'Pell recipients (%)'),
-    #'rankp_ADJ_AVGFACSAL':'',
-    'Ex':(sch.r_fin_ADJ_INEXPFTE,nat_mean.ADJ_INEXPFTE,'Expenses per student (USD)'),
-    'FT':(sch.r_fin_PFTFAC,nat_mean.PFTFAC,'Full-time faculty (%)'),
-    'R':(sch.r_fin_COMB_RET_RATE,nat_mean.COMB_RET_RATE,'Returning students (%)')
-    }
-    """
     #hoverinfo = 'label+percent'
     
     url = urllib.unquote_plus(url_string).decode('utf8')
-    print 'decoded url: ',url
     json_string = url.split('/pct/')[-1]
-    #json_string = url[6:]
     symbol_qnty_dict = json.loads(json_string)
-    print 'decoded my_dict',symbol_qnty_dict  
 
     y_list = []
     ann_list = []
-    """
-    for k,v in pct_rank_qnty_dict.iteritems():
-        if (sel_inst[k] >= 0.0):
-            y_list.append(sel_inst[k])
-            ann_list.append(v)
-    """
+
     for k in symbol_qnty_dict.keys():
         y_list.append(symbol_qnty_dict[k][3])
         ann_list.append(k)
@@ -157,8 +128,7 @@ def update_pct_satisfaction(inst1,url_string):
                 x= -0.1,y= 0.47,sizex= 0.15,sizey= 0.15,xanchor= "right",yanchor= "bottom"),
              dict(source='data:image/png;base64,{}'.format(encoded_fr),xref= "paper",yref= "paper",
                 x= -0.1,y= -0.02,sizex= 0.13,sizey= 0.13,xanchor= "right",yanchor= "bottom")],
-    #barmode='group',
-    #paper_bgcolor='rgb(255,255,255)',
+    
     hoverlabel=dict(bgcolor=cc6,),
     width=400,
     height=750,

@@ -563,14 +563,9 @@ layout = html.Div([
     #contact form + social share embed
     #        
     html.Div(id='contact_us',children=[
-            html.H6("Say hello to CollegeScoreCard.io",style={'text-align':'center'}),
+            html.Hr(),
             html.Iframe(src="/contact_us",
             style={'border': 'none', 'width': '100%', 'height': 540}
-           ),
-            
-            html.Iframe(src="/social/",
-            className="four columns",
-            style={'border': 'none', 'width': '100%', 'height': 150, 'text-align':'center'}
            ),
             #html.I(className="fa fa-camera-retro fa-lg"),
             #html.Hr(),  
@@ -1070,12 +1065,9 @@ def show_inst_details(inst1):
     param = {'xlabels':xlabels,'ylabels':ylabels}
     json_param = json.dumps(param)
     encoded_json_param = urllib.quote_plus(json_param)
-    
 
     #pct dict plot
-    symbol_dict = make_pct_satisfac_dict(sch,nat_mean)
-    json_pct_dict = json.dumps(symbol_dict)
-    encoded_json_pct_dict = urllib.quote_plus(json_pct_dict)
+    encoded_json_pct_dict = make_pct_satisfac_dict(sch,nat_mean)
     
     #facebook:
     if wiki_social.FB_HANDL != None:

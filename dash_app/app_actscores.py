@@ -69,18 +69,10 @@ Output('act_scores', 'figure'),
 
 def update_test_scores(inst1,url_string):
     
-    
-    print 'url_string: ',url_string
-    
     url = urllib.unquote_plus(url_string).decode('utf8')
-    print 'decoded url: ',url
     json_string = url.split('/actscores/')[-1]
     ts_dict = json.loads(json_string)
-    print 'decoded my_dict',ts_dict
 
-    #score_type = test_scores_dict.keys()
-    #xlabels = my_dict['xlabels']
-    #ylabels = my_dict['ylabels']  
     act_list = ['act_cm','act_en','act_mt','act_wr']
     y = []
     x_25 = []

@@ -69,18 +69,10 @@ Output('sat_scores', 'figure'),
 
 def update_test_scores(inst1,url_string):
     
-    
-    print 'url_string: ',url_string
-    
     url = urllib.unquote_plus(url_string).decode('utf8')
-    print 'decoded url: ',url
     json_string = url.split('/satscores/')[-1]
     ts_dict = json.loads(json_string)
-    print 'decoded my_dict',ts_dict
 
-    #score_type = test_scores_dict.keys()
-    #xlabels = my_dict['xlabels']
-    #ylabels = my_dict['ylabels']  
     sat_list = ['sat_vr','sat_mt','sat_wr']
     y = []
     x_25 = []

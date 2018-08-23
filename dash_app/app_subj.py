@@ -67,19 +67,9 @@ Output('subj_bar2', 'figure'),
 
 def update_subject_bar(inst1,url_string):
     
-    #sel_inst = json.loads(json.loads(inst1))
-    #Get the ordered list from flask_app.utils
-    
-    #xlabels,ylabels = order_pop_subs(sel_inst['POP_SUBS'])
-    
-    print 'url_string: ',url_string
-    
     url = urllib.unquote_plus(url_string).decode('utf8')
-    print 'decoded url: ',url
     json_string = url.split('/popsub/')[-1]
-    #json_string = url[6:]
     my_dict = json.loads(json_string)
-    print 'decoded my_dict',my_dict
 
     xlabels = my_dict['xlabels']
     ylabels = my_dict['ylabels']    

@@ -137,16 +137,18 @@ def school_profile(uid):
                 act_string = make_no2_test_dict('ACT_PRESENT',sch)
                 
                 
-            if wiki_social.TW_HANDL != "":
-                #print wiki_social.TW_HANDL
-                if wiki_social.TW_HANDL[-1]==" ":
-                    TW_ALT = wiki_social.TW_HANDL.rstrip()
+            if wiki_social != None:
+                if wiki_social.TW_HANDL != "":
+                    #print wiki_social.TW_HANDL
+                    if wiki_social.TW_HANDL[-1]==" ":
+                        TW_ALT = wiki_social.TW_HANDL.rstrip()
+                    else:
+                        TW_ALT = wiki_social.TW_HANDL
                 else:
-                    TW_ALT = wiki_social.TW_HANDL
+                    #print wiki_social.TW_HANDL
+                    TW_ALT = ""
             else:
-                #print wiki_social.TW_HANDL
-                TW_ALT = ""
-                
+                TW_ALT = ""                    
             #Find similar featured schools (Care score and value score within +/-3 )
             feat_list = suggest_featured_schools(sch.Value_score,sch.Care_score,uid=sch.uid)
 
